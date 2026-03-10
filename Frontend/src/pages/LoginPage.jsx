@@ -7,7 +7,11 @@ import "../styles/auth.css";
 const LoginPage = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
+  if (user) {
+    navigate("/");
+  }
   const [formData, setFormData] = useState({
     email: "",
     password: "",

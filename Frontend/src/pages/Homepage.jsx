@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Saferoute_Logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -10,13 +11,18 @@ import alertsImg from "../assets/feature-bg/alerts.png";
 
 const Homepage = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
+
+  if (loading) return null;
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const handleLogout = () => {
     signOut();
     navigate("/login");
   };
-
   return (
     <div className="home-page">
       <div className="home-overlay">
@@ -36,6 +42,16 @@ const Homepage = () => {
               <span className="user-pill">
                 Logged in as {user?.name || "User"}
               </span>
+
+              {user?.role === "admin" && (
+                <button
+                  className="gradient-btn small-btn"
+                  onClick={() => navigate("/admin")}
+                >
+                  Admin Panel
+                </button>
+              )}
+
               <button className="gradient-btn small-btn" onClick={handleLogout}>
                 Logout
               </button>
