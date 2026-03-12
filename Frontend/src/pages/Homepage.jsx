@@ -8,7 +8,7 @@ import mapImg from "../assets/feature-bg/map.png";
 import reportImg from "../assets/feature-bg/report.png";
 import qrImg from "../assets/feature-bg/qr.png";
 import alertsImg from "../assets/feature-bg/alerts.png";
-
+import { Link } from "react-router-dom";
 const Homepage = () => {
   const navigate = useNavigate();
   const { user, signOut, loading } = useAuth();
@@ -119,18 +119,22 @@ const Homepage = () => {
             </div>
         </div>
 
-        <div className="feature-card large">
-            <img src={reportImg} className="feature-bg" alt="Report Feature" />
-            <div className="feature-content">
-            <h3>Report an Incident</h3>
-            <p>
-                Submit road safety issues and let admins review reports to keep
-                information trustworthy.
-            </p>
-            <button className="gradient-btn">Create Reports</button>
-            </div>
-        </div>
+<div className="feature-card large">
+  <img src={reportImg} className="feature-bg" alt="Report Feature" />
 
+  <div className="feature-content">
+    <h3>Report an Incident</h3>
+
+    <p>
+      Submit road safety issues and let admins review reports to keep
+      information trustworthy.
+    </p>
+
+    <Link to="/report">
+      <button className="gradient-btn">Create Reports</button>
+    </Link>
+  </div>
+</div>
         <div className="feature-card qr-card">
             <img src={qrImg} className="feature-bg" alt="QR Feature" />
             <div className="feature-content">

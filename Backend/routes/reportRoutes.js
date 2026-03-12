@@ -6,9 +6,25 @@ const router = express.Router();
 // Create report
 router.post("/", async (req, res) => {
   try {
-    const report = new Report(req.body);
+    const { issueType, description, location, severity } = req.body;
+
+    if (!issueType || !description || !location || !severity) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
+    const report = new Report({
+      issueType,
+      description,
+      location,
+      severity,
+    });
+
     const savedReport = await report.save();
+
     res.status(201).json(savedReport);
+
   } catch (error) {
     res.status(400).json({
       message: "Failed to create report",
