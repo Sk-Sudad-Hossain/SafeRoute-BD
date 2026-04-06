@@ -1,26 +1,78 @@
 import express from "express";
 import Alert from "../models/Alert.js";
+import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
+import { io } from "../server.js";
 
 const router = express.Router();
 
-// Create alert
-router.post("/", async (req, res) => {
+// Admin creates alert
+router.post("/", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const alert = new Alert(req.body);
-    const savedAlert = await alert.save();
-    res.status(201).json(savedAlert);
+    const { title, description, severity, expiresAt } = req.body;
+
+    if (!title || !description || !severity) {
+      return res.status(400).json({
+        message: "Title, description, and severity are required",
+      });
+    }
+
+    const validSeverities = ["High", "Moderate", "Low"];
+    if (!validSeverities.includes(severity)) {
+      return res.status(400).json({
+        message: "Severity must be High, Moderate, or Low",
+      });
+    }
+
+    const alertExpiry = expiresAt
+      ? new Date(expiresAt)
+      : new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const newAlert = new Alert({
+      title,
+      description,
+      severity,
+      expiresAt: alertExpiry,
+      createdBy: req.user?._id || null,
+    });
+
+    const savedAlert = await newAlert.save();
+    io.emit("new-alert", savedAlert); //  THIS LINE SENDS REAL-TIME NOTIFICATION
+
+    res.status(201).json({
+      message: "Alert created successfully",
+      alert: savedAlert,
+    });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Failed to create alert",
       error: error.message,
     });
   }
 });
 
-// Get all alerts
+// Get latest active alert for homepage
+router.get("/latest", async (req, res) => {
+  try {
+    const latestAlert = await Alert.findOne({
+      expiresAt: { $gt: new Date() },
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(latestAlert || null);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch latest alert",
+      error: error.message,
+    });
+  }
+});
+
+// Get all active alerts for user "View All"
 router.get("/", async (req, res) => {
   try {
-    const alerts = await Alert.find().sort({ createdAt: -1 });
+    const alerts = await Alert.find({
+      expiresAt: { $gt: new Date() },
+    }).sort({ createdAt: -1 });
+
     res.status(200).json(alerts);
   } catch (error) {
     res.status(500).json({
@@ -30,48 +82,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get single alert
-router.get("/:id", async (req, res) => {
-  try {
-    const alert = await Alert.findById(req.params.id);
-
-    if (!alert) {
-      return res.status(404).json({ message: "Alert not found" });
-    }
-
-    res.status(200).json(alert);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch alert",
-      error: error.message,
-    });
-  }
-});
-
-// Update alert
-router.patch("/:id", async (req, res) => {
-  try {
-    const updatedAlert = await Alert.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedAlert) {
-      return res.status(404).json({ message: "Alert not found" });
-    }
-
-    res.status(200).json(updatedAlert);
-  } catch (error) {
-    res.status(400).json({
-      message: "Failed to update alert",
-      error: error.message,
-    });
-  }
-});
-
-// Delete alert
-router.delete("/:id", async (req, res) => {
+// Optional admin delete
+router.delete("/:id", authMiddleware, adminOnly, async (req, res) => {
   try {
     const deletedAlert = await Alert.findByIdAndDelete(req.params.id);
 

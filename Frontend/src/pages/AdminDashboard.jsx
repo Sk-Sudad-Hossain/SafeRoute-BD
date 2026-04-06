@@ -1,18 +1,39 @@
 import React, { useEffect, useState } from "react";
 import "../styles/adminDashboard.css";
 import banner from "../assets/feature-bg/adminPanel.png";
+import { useNavigate } from "react-router-dom";
+
+const API_BASE = "http://localhost:1715/api";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [adminNote, setAdminNote] = useState("");
 
-  const fetchReports = () => {
-    fetch("http://localhost:1715/api/reports")
-      .then((res) => res.json())
-      .then((data) => setReports(data))
-      .catch((error) => console.error("Error fetching reports:", error));
+  const token = localStorage.getItem("token");
+
+  const fetchReports = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/reports`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch reports");
+      }
+
+      setReports(data);
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    }
   };
 
   useEffect(() => {
@@ -34,13 +55,19 @@ const AdminDashboard = () => {
   const handleStatusUpdate = async (newStatus) => {
     if (!selectedReport) return;
 
+    if (!token) {
+      alert("You are not logged in. Please log in as admin first.");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `http://localhost:1715/api/reports/${selectedReport._id}/status`,
+        `${API_BASE}/reports/${selectedReport._id}/status`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             status: newStatus,
@@ -49,15 +76,60 @@ const AdminDashboard = () => {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to update report status");
+        throw new Error(data.message || "Failed to update report status");
       }
 
       await fetchReports();
       handleCloseModal();
+      alert(data.message || `Report updated to ${newStatus}`);
     } catch (error) {
       console.error("Error updating report:", error);
-      alert("Failed to update report status");
+      alert(error.message || "Failed to update report status");
+    }
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this report?"
+    );
+
+    if (!confirmed) return;
+
+    if (!token) {
+      alert("You are not logged in. Please log in as admin first.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/reports/${reportId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete report");
+      }
+
+      setReports((prevReports) =>
+        prevReports.filter((report) => report._id !== reportId)
+      );
+
+      if (selectedReport && selectedReport._id === reportId) {
+        handleCloseModal();
+      }
+
+      alert("Report deleted successfully");
+    } catch (error) {
+      console.error("Error deleting report:", error);
+      alert(error.message || "Failed to delete report");
     }
   };
 
@@ -73,9 +145,15 @@ const AdminDashboard = () => {
         <p>Admin Panel</p>
 
         <nav>
-          <button className="sidebar-btn active">Dashboard</button>
-          <button className="sidebar-btn">Reports</button>
-          <button className="sidebar-btn">Alerts</button>
+          <button className="sidebar-btn" onClick={() => navigate("/")}>
+            Homepage
+          </button>
+          <button className="sidebar-btn active">     
+            Verify Reports
+          </button>
+          <button className="sidebar-btn" onClick={() => navigate("/admin/alerts")}>
+            Alerts
+          </button>
           <button className="sidebar-btn">Analytics</button>
           <button className="sidebar-btn">Settings</button>
         </nav>
@@ -86,15 +164,15 @@ const AdminDashboard = () => {
         <p>Review submitted reports here.</p>
 
         <div
-        className="admin-banner"
-        style={{ backgroundImage: `url(${banner})` }}
+          className="admin-banner"
+          style={{ backgroundImage: `url(${banner})` }}
         >
-        <div className="banner-overlay">
+          <div className="banner-overlay">
             <h3>Road Safety Monitoring</h3>
             <p>Track and manage road safety reports across Bangladesh</p>
+          </div>
         </div>
-        </div>
-        
+
         <div className="summary-cards">
           <div className="summary-card pending">
             <div className="summary-icon">⏳</div>
@@ -143,7 +221,7 @@ const AdminDashboard = () => {
                 {reports.map((report) => (
                   <tr key={report._id}>
                     <td>{report.issueType}</td>
-                    <td>{report.location}</td>
+                    <td>{report.location?.address}</td>
 
                     <td>
                       <span
@@ -166,12 +244,22 @@ const AdminDashboard = () => {
                     </td>
 
                     <td>
-                      <button
-                        className="review-btn"
-                        onClick={() => handleReviewClick(report)}
-                      >
-                        Review
-                      </button>
+                      <div className="action-buttons">
+                        <button
+                          className="review-btn"
+                          onClick={() => handleReviewClick(report)}
+                        >
+                          Review
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDeleteReport(report._id)}
+                          title="Delete report"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -194,7 +282,7 @@ const AdminDashboard = () => {
                 <b>Issue Type:</b> {selectedReport.issueType}
               </p>
               <p>
-                <b>Location:</b> {selectedReport.location}
+                <b>Location:</b> {selectedReport.location?.address}
               </p>
               <p>
                 <b>Severity:</b> {selectedReport.severity}
@@ -213,7 +301,7 @@ const AdminDashboard = () => {
 
             <textarea
               value={adminNote}
-              onChange={(e) => setAdminNote(e.target.value)}
+              onChange={(e) => setAdminNote( e.target.value)}
               placeholder="Write admin note..."
               className="admin-textarea"
             />
