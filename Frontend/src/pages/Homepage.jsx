@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/home.css";
 import mapImg from "../assets/feature-bg/map.png";
 import reportImg from "../assets/feature-bg/report.png";
+import historyImg from "../assets/feature-bg/history.png";
 import qrImg from "../assets/feature-bg/qr.png";
 import alertsImg from "../assets/feature-bg/alertMap.png";
 import LatestAlertPanel from "../components/LatestAlertPanel";
@@ -123,32 +124,40 @@ const Homepage = () => {
             <button className="gradient-btn" onClick={() => navigate("/map-test")}>Explore Map</button>
             </div>
         </div>
+      
+      
+      <div className="feature-card large">
+        <img src={reportImg} className="feature-bg" alt="Report Feature" />
+        <div className="feature-content">
+          <h3>Report an Incident</h3>
+          <p>
+            Submit road safety issues and let admins review reports to keep
+            information trustworthy.
+          </p>
+          <div className="report-buttons">
+            <Link to="/report">
+              <button className="gradient-btn">Create Report</button>
+            </Link>
+          </div>
+        </div>
+      </div>
+       
+       
+        <div className="feature-card large">
+          <img src={historyImg} className="feature-bg" alt="History Feature" />
+          <div className="feature-content">
+            <h3>Report History</h3>
+            <p>
+              View all previously submitted reports and track their status in real time.
+            </p>
+            <div className="history-buttons">
+              <Link to="/reports">
+                <button className="feature-btn">View My Reports</button>
+              </Link>
+            </div>
+          </div>
+        </div>
 
-<div className="feature-card large">
-  <img src={reportImg} className="feature-bg" alt="Report Feature" />
-
-  <div className="feature-content">
-    <h3>Report an Incident</h3>
-
-    <p>
-      Submit road safety issues and let admins review reports to keep
-      information trustworthy.
-    </p>
-
-    <div className="report-buttons">
-
-      <Link to="/report">
-        <button className="gradient-btn">Create Report</button>
-      </Link>
-
-      <Link to="/reports">
-        <button className="gradient-btn outline-btn">My Reports</button>
-      </Link>
-
-    </div>
-
-  </div>
-</div>
         <div className="feature-card qr-card">
             <img src={qrImg} className="feature-bg" alt="QR Feature" />
             <div className="feature-content">
