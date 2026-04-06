@@ -217,7 +217,9 @@ body,
 
 /* ---------- INPUT ---------- */
 
-.auth-field input {
+.auth-field input,
+.auth-field textarea,
+.auth-field select {
   width: 100%;
 
   padding: 14px 16px;
@@ -235,13 +237,15 @@ body,
   font-size: 0.95rem;
 }
 
-.auth-field input::placeholder {
+.auth-field input::placeholder,
+.auth-field textarea::placeholder {
   color: rgba(255, 255, 255, 0.35);
 }
-
 /* focus effect */
 
-.auth-field input:focus {
+.auth-field input:focus,
+.auth-field textarea:focus,
+.auth-field select:focus  {
   border-color: rgba(59, 130, 246, 0.7);
 
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);

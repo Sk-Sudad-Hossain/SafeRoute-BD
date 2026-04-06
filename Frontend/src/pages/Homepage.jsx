@@ -1,13 +1,17 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../assets/Saferoute_Logo.png";
 import { useAuth } from "../context/AuthContext";
 import "../styles/home.css";
 import mapImg from "../assets/feature-bg/map.png";
 import reportImg from "../assets/feature-bg/report.png";
 import qrImg from "../assets/feature-bg/qr.png";
-import alertsImg from "../assets/feature-bg/alerts.png";
+import alertsImg from "../assets/feature-bg/alertMap.png";
+import LatestAlertPanel from "../components/LatestAlertPanel";
+import AlertNotifications from "../components/AlertNotifications";
+
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -27,8 +31,6 @@ const Homepage = () => {
     <div className="home-page">
       <div className="home-overlay">
         <section className="hero-card">
-          <div className="hero-glow hero-glow-1"></div>
-          <div className="hero-glow hero-glow-2"></div>
 
           <div className="hero-top">
             <div className="hero-tags">
@@ -42,6 +44,7 @@ const Homepage = () => {
               <span className="user-pill">
                 Logged in as {user?.name || "User"}
               </span>
+              <AlertNotifications />
 
               {user?.role === "admin" && (
                 <button
@@ -80,6 +83,8 @@ const Homepage = () => {
           </div>
         </section>
 
+        <LatestAlertPanel />
+
         <section className="feature-summary">
           <div className="summary-item">
             <h4>Map Zones</h4>
@@ -115,22 +120,35 @@ const Homepage = () => {
                 See unsafe areas instantly with color-coded zones and markers
                 based on severity and verification.
             </p>
-            <button className="gradient-btn">Explore Map</button>
+            <button className="gradient-btn" onClick={() => navigate("/map-test")}>Explore Map</button>
             </div>
         </div>
 
-        <div className="feature-card large">
-            <img src={reportImg} className="feature-bg" alt="Report Feature" />
-            <div className="feature-content">
-            <h3>Report an Incident</h3>
-            <p>
-                Submit road safety issues and let admins review reports to keep
-                information trustworthy.
-            </p>
-            <button className="gradient-btn">Create Reports</button>
-            </div>
-        </div>
+<div className="feature-card large">
+  <img src={reportImg} className="feature-bg" alt="Report Feature" />
 
+  <div className="feature-content">
+    <h3>Report an Incident</h3>
+
+    <p>
+      Submit road safety issues and let admins review reports to keep
+      information trustworthy.
+    </p>
+
+    <div className="report-buttons">
+
+      <Link to="/report">
+        <button className="gradient-btn">Create Report</button>
+      </Link>
+
+      <Link to="/reports">
+        <button className="gradient-btn outline-btn">My Reports</button>
+      </Link>
+
+    </div>
+
+  </div>
+</div>
         <div className="feature-card qr-card">
             <img src={qrImg} className="feature-bg" alt="QR Feature" />
             <div className="feature-content">
@@ -149,7 +167,7 @@ const Homepage = () => {
             <p>
                 Read road safety tips and alert updates published by admins.
             </p>
-            <button className="gradient-btn">View Alerts</button>
+            <button className="gradient-btn" onClick={() => navigate("/alerts")}>View Alerts</button>
             </div>
         </div>
         </section>
@@ -190,45 +208,6 @@ const Homepage = () => {
           </div>
         </section>
 
-        {/* <section className="feedback-section">
-          <div className="feedback-top">
-            <div>
-              <h2>Feedback</h2>
-              <p>Share your experience about usability and road safety effectiveness.</p>
-            </div>
-
-            <div className="feedback-actions">
-              <button className="gradient-btn small-btn">Feedback</button>
-              <button className="gradient-btn small-btn">See more feedbacks</button>
-            </div>
-          </div>
-
-          <div className="feedback-grid">
-            <div className="feedback-card">
-              <div className="feedback-header">
-                <h4>Brac University</h4>
-                <span>★★★☆☆</span>
-              </div>
-              <p>Very good work.</p>
-            </div>
-
-            <div className="feedback-card">
-              <div className="feedback-header">
-                <h4>Elon Mask</h4>
-                <span>★★★★★</span>
-              </div>
-              <p>Nice work. This kind of safety insight can scale well.</p>
-            </div>
-
-            <div className="feedback-card">
-              <div className="feedback-header">
-                <h4>Tony Stark</h4>
-                <span>★★★★★</span>
-              </div>
-              <p>Great work. The concept feels practical and impactful.</p>
-            </div>
-          </div>
-        </section> */}
       </div>
     </div>
   );

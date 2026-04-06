@@ -47,9 +47,6 @@
   transform: translateX(4px);
 }
 
-.sidebar-btn.active {
-  background: rgba(255, 255, 255, 0.18);
-}
 
 .admin-main {
   flex: 1;
@@ -230,6 +227,33 @@
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-btn {
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #df1f1f, #d46464);
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.28);
+}
+
 .badge {
   display: inline-block;
   padding: 6px 12px;
@@ -239,7 +263,7 @@
 }
 
 .status-pending {
-  background: #fef3c7;
+  background: rgb(253, 223, 100);
   color: #92400e;
 }
 
@@ -259,12 +283,12 @@
 }
 
 .severity-high {
-  background: #fee2e2;
+  background: #ff9595;
   color: #b91c1c;
 }
 
 .severity-medium {
-  background: #ffedd5;
+  background: #fcf700;
   color: #c2410c;
 }
 
