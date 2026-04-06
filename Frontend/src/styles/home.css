@@ -463,6 +463,61 @@ body {
   color: #052653;
 }
 
+/* FEEDBACK */
+.feedback-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.feedback-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.feedback-card {
+  padding: 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(234, 246, 255, 0.34));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 16px 34px rgba(67, 111, 184, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.feedback-header h4 {
+  margin: 0;
+  color: #143c72;
+}
+
+.feedback-header span {
+  color: #f4b400;
+  font-size: 20px;
+}
+
+.feedback-card p {
+  margin: 14px 0 0 0;
+  line-height: 1.6;
+  color: #617ca2;
+}
+
+
 /* RESPONSIVE */
 
 @media (max-width: 1200px) {
