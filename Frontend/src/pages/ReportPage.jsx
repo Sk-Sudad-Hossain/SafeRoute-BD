@@ -7,6 +7,8 @@ const ReportPage = () => {
     issueType: "",
     description: "",
     location: "",
+    latitude: "",
+    longitude: "",
     severity: "",
   });
 
@@ -24,18 +26,41 @@ const ReportPage = () => {
     setMessage("");
 
     try {
+      if (
+        !formData.issueType ||
+        !formData.description ||
+        !formData.location ||
+        !formData.latitude ||
+        !formData.longitude ||
+        !formData.severity
+      ) {
+        setMessage("All fields are required");
+        return;
+      }
+
+      const payload = {
+        issueType: formData.issueType,
+        description: formData.description,
+        location: {
+          address: formData.location,
+          latitude: Number(formData.latitude),
+          longitude: Number(formData.longitude),
+        },
+        severity: formData.severity,
+      };
+
       const response = await fetch("http://localhost:1715/api/reports", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || data.error || "Failed to create report");
       }
 
       setMessage("Report submitted successfully!");
@@ -44,18 +69,19 @@ const ReportPage = () => {
         issueType: "",
         description: "",
         location: "",
+        latitude: "",
+        longitude: "",
         severity: "",
       });
-
     } catch (error) {
       setMessage(error.message);
+      console.error("Report submit error:", error);
     }
   };
 
   return (
     <div className="auth-page">
       <div className="auth-card">
-
         <div className="auth-top-dots">
           <span></span>
           <span></span>
@@ -71,25 +97,28 @@ const ReportPage = () => {
           </div>
         </div>
 
-        {message && <p className="auth-error">{message}</p>}
+        {message && (
+          <p className={message.includes("successfully") ? "auth-success" : "auth-error"}>
+            {message}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
-
-      <div className="auth-field">
-  <label>Issue Type</label>
-  <select
-    name="issueType"
-    value={formData.issueType}
-    onChange={handleChange}
-  >
-    <option value="">Select issue type</option>
-    <option value="Accident">🚗 Accident</option>
-    <option value="Road Damage">🕳 Road Damage</option>
-    <option value="Traffic Jam">🚦 Traffic Jam</option>
-    <option value="Construction">🏗 Construction</option>
-    <option value="Flooding">🌧 Flooding</option>
-  </select>
-</div>
+          <div className="auth-field">
+            <label>Issue Type</label>
+            <select
+              name="issueType"
+              value={formData.issueType}
+              onChange={handleChange}
+            >
+              <option value="">Select issue type</option>
+              <option value="Accident">🚗 Accident</option>
+              <option value="Road Damage">🕳 Road Damage</option>
+              <option value="Traffic Jam">🚦 Traffic Jam</option>
+              <option value="Construction">🏗 Construction</option>
+              <option value="Flooding">🌧 Flooding</option>
+            </select>
+          </div>
 
           <div className="auth-field">
             <label>Description</label>
@@ -113,6 +142,30 @@ const ReportPage = () => {
           </div>
 
           <div className="auth-field">
+            <label>Latitude</label>
+            <input
+              type="number"
+              step="any"
+              name="latitude"
+              placeholder="Enter latitude"
+              value={formData.latitude}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="auth-field">
+            <label>Longitude</label>
+            <input
+              type="number"
+              step="any"
+              name="longitude"
+              placeholder="Enter longitude"
+              value={formData.longitude}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="auth-field">
             <label>Severity</label>
             <select
               name="severity"
@@ -129,13 +182,11 @@ const ReportPage = () => {
           <button type="submit" className="auth-button">
             Submit Report
           </button>
-
         </form>
 
         <p className="auth-switch">
           Go back to <Link to="/">Home</Link>
         </p>
-
       </div>
     </div>
   );

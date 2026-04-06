@@ -66,6 +66,7 @@ body {
 }
 
 /* HERO */
+
 .hero-card {
   position: relative;
   padding: 28px;
@@ -84,6 +85,7 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
+
 .hero-card::before {
   content: "";
   position: absolute;
@@ -165,6 +167,7 @@ body {
   position: relative;
   z-index: 20;
 }
+
 .hero-main {
   margin-top: 24px;
 }
@@ -177,6 +180,7 @@ body {
 .notification-dropdown {
   z-index: 9999;
 }
+
 .brand-row {
   display: flex;
   align-items: center;
@@ -213,6 +217,7 @@ body {
 }
 
 /* SUMMARY */
+
 .feature-summary {
   margin-top: 26px;
   display: grid;
@@ -251,6 +256,7 @@ body {
 }
 
 /* FEATURE GRID */
+
 .feature-grid {
   margin-top: 20px;
   display: grid;
@@ -290,13 +296,14 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(19, 79, 119, 0.356),
+    rgba(19, 79, 119, 0.45),
     rgba(0, 0, 0, 0.24),
     rgba(0, 0, 0, 0.06)
   );
   z-index: 1;
 }
 
+/* Cards with wrapped content */
 .feature-content {
   position: relative;
   z-index: 2;
@@ -317,6 +324,46 @@ body {
   opacity: 1;
 }
 
+/* Cards without .feature-content wrapper
+   (used by your Report History card) */
+.feature-card > h3,
+.feature-card > p,
+.feature-card > a,
+.feature-card > .report-buttons {
+  position: relative;
+  z-index: 2;
+}
+
+.feature-card > h3 {
+  margin: 0 0 10px 0;
+  font-size: 26px;
+  line-height: 1.2;
+  color: white;
+  max-width: 68%;
+}
+
+.feature-card > p {
+  margin: 0 0 14px 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: white;
+  max-width: 68%;
+}
+
+.feature-card > a,
+.feature-card > .report-buttons {
+  display: inline-flex;
+}
+
+.report-buttons {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Grid spans */
 .large {
   grid-column: span 6;
 }
@@ -326,7 +373,26 @@ body {
   grid-column: span 6;
 }
 
+/* Optional button just for feature cards */
+.feature-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(90deg, #23d5f5, #3e8cff, #9d5cff);
+  box-shadow: 0 10px 24px rgba(82, 125, 255, 0.24);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(5, 54, 202, 0.301);
+}
+
 /* BUTTONS */
+
 .gradient-btn {
   border: none;
   border-radius: 999px;
@@ -350,6 +416,7 @@ body {
 }
 
 /* SECTIONS */
+
 .how-section,
 .feedback-section {
   margin-top: 34px;
@@ -396,7 +463,63 @@ body {
   color: #052653;
 }
 
+/* FEEDBACK */
+.feedback-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.feedback-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.feedback-card {
+  padding: 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(234, 246, 255, 0.34));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 16px 34px rgba(67, 111, 184, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.feedback-header h4 {
+  margin: 0;
+  color: #143c72;
+}
+
+.feedback-header span {
+  color: #f4b400;
+  font-size: 20px;
+}
+
+.feedback-card p {
+  margin: 14px 0 0 0;
+  line-height: 1.6;
+  color: #617ca2;
+}
+
+
 /* RESPONSIVE */
+
 @media (max-width: 1200px) {
   .feature-summary,
   .steps-grid,
@@ -408,6 +531,12 @@ body {
   .qr-card,
   .alert-card {
     grid-column: span 12;
+  }
+
+  .feature-content,
+  .feature-card > h3,
+  .feature-card > p {
+    max-width: 82%;
   }
 }
 
@@ -438,11 +567,17 @@ body {
     min-height: 230px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 18px;
+    justify-content: flex-end;
+    gap: 12px;
   }
 
-  .feature-content {
+  .feature-content,
+  .feature-card > h3,
+  .feature-card > p {
     max-width: 100%;
   }
-  
+
+  .report-buttons {
+    width: 100%;
+  }
 }

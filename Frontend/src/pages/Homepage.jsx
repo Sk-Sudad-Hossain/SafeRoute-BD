@@ -1,17 +1,17 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Navigate, useNavigate, Link } from "react-router-dom";
 import logo from "../assets/Saferoute_Logo.png";
 import { useAuth } from "../context/AuthContext";
 import "../styles/home.css";
+
 import mapImg from "../assets/feature-bg/map.png";
 import reportImg from "../assets/feature-bg/report.png";
+import historyImg from "../assets/feature-bg/history.png";
 import qrImg from "../assets/feature-bg/qr.png";
 import alertsImg from "../assets/feature-bg/alertMap.png";
+
 import LatestAlertPanel from "../components/LatestAlertPanel";
 import AlertNotifications from "../components/AlertNotifications";
-
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -27,10 +27,13 @@ const Homepage = () => {
     signOut();
     navigate("/login");
   };
+
   return (
     <div className="home-page">
       <div className="home-overlay">
         <section className="hero-card">
+          <div className="hero-glow hero-glow-1"></div>
+          <div className="hero-glow hero-glow-2"></div>
 
           <div className="hero-top">
             <div className="hero-tags">
@@ -44,6 +47,7 @@ const Homepage = () => {
               <span className="user-pill">
                 Logged in as {user?.name || "User"}
               </span>
+
               <AlertNotifications />
 
               {user?.role === "admin" && (
@@ -112,64 +116,87 @@ const Homepage = () => {
         </section>
 
         <section className="feature-grid">
-        <div className="feature-card large">
+          <div className="feature-card large">
             <img src={mapImg} className="feature-bg" alt="Map Feature" />
             <div className="feature-content">
-            <h3>Interactive Safety Map</h3>
-            <p>
+              <h3>Interactive Safety Map</h3>
+              <p>
                 See unsafe areas instantly with color-coded zones and markers
                 based on severity and verification.
-            </p>
-            <button className="gradient-btn" onClick={() => navigate("/map-test")}>Explore Map</button>
+              </p>
+              <button
+                className="gradient-btn"
+                onClick={() => navigate("/map-test")}
+              >
+                Explore Map
+              </button>
             </div>
-        </div>
+          </div>
 
-<div className="feature-card large">
-  <img src={reportImg} className="feature-bg" alt="Report Feature" />
+          <div className="feature-card large">
+            <img src={reportImg} className="feature-bg" alt="Report Feature" />
+            <div className="feature-content">
+              <h3>Report an Incident</h3>
+              <p>
+                Submit road safety issues and let admins review reports to keep
+                information trustworthy.
+              </p>
+              <div className="report-buttons">
+                <Link to="/report">
+                  <button className="gradient-btn">Create Report</button>
+                </Link>
+              </div>
+            </div>
+          </div>
 
-  <div className="feature-content">
-    <h3>Report an Incident</h3>
+          <div className="feature-card large">
+            <img src={historyImg} className="feature-bg" alt="History Feature" />
+            <div className="feature-content">
+              <h3>Report History</h3>
+              <p>
+                View all previously submitted reports and track their status in
+                real time.
+              </p>
+              <div className="history-buttons">
+                <Link to="/reports">
+                  <button className="feature-btn">View My Reports</button>
+                </Link>
+              </div>
+            </div>
+          </div>
 
-    <p>
-      Submit road safety issues and let admins review reports to keep
-      information trustworthy.
-    </p>
-
-    <div className="report-buttons">
-
-      <Link to="/report">
-        <button className="gradient-btn">Create Report</button>
-      </Link>
-
-      <Link to="/reports">
-        <button className="gradient-btn outline-btn">My Reports</button>
-      </Link>
-
-    </div>
-
-  </div>
-</div>
-        <div className="feature-card qr-card">
+          <div className="feature-card qr-card">
             <img src={qrImg} className="feature-bg" alt="QR Feature" />
             <div className="feature-content">
-            <h3>QR Transport Profiles</h3>
-            <p>
-                Scan QR to view a driver's community rating and report history.
-            </p>
-            <button className="gradient-btn">Open QR</button>
+              <h3>QR Transport Profiles</h3>
+              <p>
+                Scan QR to view a driver's community rating, vehicle safety
+                score, and report history.
+              </p>
+              <button
+                className="gradient-btn"
+                onClick={() => navigate("/scan")}
+              >
+                Open QR
+              </button>
             </div>
-        </div>
+          </div>
 
-        <div className="feature-card alert-card">
+          <div className="feature-card alert-card">
             <img src={alertsImg} className="feature-bg" alt="Alerts Feature" />
             <div className="feature-content">
-            <h3>Alert Updates</h3>
-            <p>
+              <h3>Alert Updates</h3>
+              <p>
                 Read road safety tips and alert updates published by admins.
-            </p>
-            <button className="gradient-btn" onClick={() => navigate("/alerts")}>View Alerts</button>
+              </p>
+              <button
+                className="gradient-btn"
+                onClick={() => navigate("/alerts")}
+              >
+                View Alerts
+              </button>
             </div>
-        </div>
+          </div>
         </section>
 
         <section className="how-section">
@@ -208,6 +235,67 @@ const Homepage = () => {
           </div>
         </section>
 
+        <section className="feedback-section">
+          <div className="feedback-top">
+            <div>
+              <h2>Feedback & Transport Rating</h2>
+              <p>
+                Rate the platform, open transport profiles, and test the QR-based
+                vehicle flow.
+              </p>
+            </div>
+
+            <div className="feedback-actions">
+              <button
+                className="gradient-btn small-btn"
+                onClick={() => navigate("/feedback")}
+              >
+                Platform Feedback
+              </button>
+              <button
+                className="gradient-btn small-btn"
+                onClick={() => navigate("/vehicles")}
+              >
+                Vehicle Profiles
+              </button>
+            </div>
+          </div>
+
+          <div className="feedback-grid">
+            <div className="feedback-card">
+              <div className="feedback-header">
+                <h4>Vehicle Profile</h4>
+                <span>QR Ready</span>
+              </div>
+              <p>
+                Each vehicle page now shows name, route, city, and average safety
+                score with a generated QR code.
+              </p>
+            </div>
+
+            <div className="feedback-card">
+              <div className="feedback-header">
+                <h4>Passenger Rating</h4>
+                <span>Live Score</span>
+              </div>
+              <p>
+                Passengers can rate driver behavior, vehicle condition, and
+                cleanliness after scanning the QR code.
+              </p>
+            </div>
+
+            <div className="feedback-card">
+              <div className="feedback-header">
+                <h4>Platform Review</h4>
+                <span>Usability</span>
+              </div>
+              <p>
+                Users can submit overall feedback on platform experience,
+                usability, and safety feature effectiveness.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

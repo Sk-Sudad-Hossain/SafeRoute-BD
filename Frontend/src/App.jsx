@@ -10,6 +10,10 @@ import MyReportsPage from "./pages/MyReportsPage";
 import MapTestPage from "./pages/MapTestPage";
 import AdminAlerts from "./pages/AdminAlerts";
 import AlertsPage from "./pages/AlertsPage";
+import VehiclesPage from "./pages/VehiclesPage";
+import VehicleProfilePage from "./pages/VehicleProfilePage";
+import FeedbackPage from "./pages/FeedbackPage";
+import QrScannerPage from "./pages/QrScannerPage";
 
 export default function App() {
   return (
@@ -23,6 +27,10 @@ export default function App() {
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute> }/>
       <Route path="/admin/alerts" element={<AdminAlerts />} />
       <Route path="/alerts" element={<AlertsPage />} />
+      <Route path="/vehicles" element={<VehiclesPage />} />
+      <Route path="/vehicles/:id" element={<VehicleProfilePage />} />
+      <Route path="/feedback" element={<FeedbackPage />} />
+      <Route path="/scan" element={<QrScannerPage />} />
     </Routes>
   );
 }

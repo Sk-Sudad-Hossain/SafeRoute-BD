@@ -1,74 +1,100 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/auth.css";
 
 const MyReportsPage = () => {
-
   const [reports, setReports] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:1715/api/reports")
       .then((res) => res.json())
       .then((data) => setReports(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Fetch error:", err));
   }, []);
 
   return (
     <div className="auth-page">
-      <div className="auth-card" style={{ maxWidth: "900px" }}>
+      <div className="auth-card reports-page-card">
+        <h2 className="auth-title">Report History</h2>
 
-        <h2 className="auth-title">My Submitted Reports</h2>
+        <p className="auth-switch reports-home-link">
+          Go back to <Link to="/">Home</Link>
+        </p>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "16px",
-          marginTop: "20px"
-        }}>
+        {reports.length === 0 ? (
+          <div className="reports-empty">
+            <p>No reports submitted yet.</p>
 
-          {reports.map((report) => (
-            <div
-              key={report._id}
-              style={{
-                background: "rgba(3,7,18,0.6)",
-                padding: "16px",
-                borderRadius: "14px",
-                color: "white"
-              }}
-            >
-
-              <h3>{report.issueType}</h3>
-
-              <p><b>Severity:</b> {report.severity}</p>
-
-              <p><b>Location:</b> {report.location}</p>
-
-              <p>
-                <b>Date:</b> {new Date(report.createdAt).toLocaleDateString()}
-              </p>
-
-              <span
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                  background:
-                    report.status === "Pending"
-                      ? "orange"
-                      : report.status === "Verified"
-                      ? "green"
-                      : report.status === "Resolved"
-                      ? "blue"
-                      : "red",
-                  color: "white"
-                }}
-              >
-                {report.status}
-              </span>
-
+            <div className="reports-actions">
+              <Link to="/report">
+                <button className="auth-button reports-action-btn">
+                  Create New Report
+                </button>
+              </Link>
             </div>
-          ))}
+          </div>
+        ) : (
+          <>
+            <div className="reports-grid">
+              {reports.map((report) => (
+                <div key={report._id} className="report-card">
+                  <h3 className="report-card-title">{report.issueType}</h3>
 
-        </div>
+                  <p>
+                    <b>Severity:</b> {report.severity}
+                  </p>
 
+                  <p>
+                    <b>Location:</b> {report.location?.address || "N/A"}
+                  </p>
+
+                  <p>
+                    <b>Latitude:</b> {report.location?.latitude ?? "N/A"}
+                  </p>
+
+                  <p>
+                    <b>Longitude:</b> {report.location?.longitude ?? "N/A"}
+                  </p>
+
+                  <p>
+                    <b>Date:</b>{" "}
+                    {report.createdAt
+                      ? new Date(report.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+
+                  <span
+                    className={`report-status ${
+                      report.status === "Pending"
+                        ? "status-pending"
+                        : report.status === "Verified"
+                        ? "status-verified"
+                        : report.status === "Resolved"
+                        ? "status-resolved"
+                        : "status-rejected"
+                    }`}
+                  >
+                    {report.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="reports-actions">
+              <Link to="/report">
+                <button className="auth-button reports-action-btn">
+                  Create New Report
+                </button>
+              </Link>
+
+              <Link to="/">
+                <button className="auth-button reports-action-btn">
+                  Back to Home
+                </button>
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
