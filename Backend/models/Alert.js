@@ -7,24 +7,26 @@ const alertSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    message: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    area: {
+    description: {
       type: String,
       required: true,
       trim: true,
     },
     severity: {
       type: String,
-      enum: ["Low", "Medium", "High"],
+      enum: ["High", "Moderate", "Low"],
       required: true,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
+    expiresAt: {
+      type: Date,
+      required: true,
+      default: () => new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+      index: { expires: 0 }, // auto delete exactly at expiresAt
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
   },
   { timestamps: true }

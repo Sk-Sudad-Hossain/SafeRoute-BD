@@ -70,7 +70,8 @@ body {
   position: relative;
   padding: 28px;
   border-radius: 30px;
-  overflow: hidden;
+  overflow: visible;
+  isolation: isolate;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.34),
@@ -83,16 +84,16 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
-
 .hero-card::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
     linear-gradient(90deg, rgba(19, 69, 109, 0.26), transparent 30%, rgba(255, 166, 0, 0.04)),
     radial-gradient(circle at top left, rgba(0, 174, 255, 0.08), transparent 28%),
     radial-gradient(circle at bottom right, rgba(145, 92, 255, 0.08), transparent 28%);
-  pointer-events: none;
 }
 
 .hero-glow {
@@ -161,12 +162,21 @@ body {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 20;
 }
-
 .hero-main {
   margin-top: 24px;
 }
 
+.notification-wrapper {
+  position: relative;
+  z-index: 50;
+}
+
+.notification-dropdown {
+  z-index: 9999;
+}
 .brand-row {
   display: flex;
   align-items: center;
@@ -384,60 +394,6 @@ body {
   margin: 0;
   line-height: 1.6;
   color: #052653;
-}
-
-/* FEEDBACK */
-.feedback-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: end;
-  flex-wrap: wrap;
-}
-
-.feedback-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.feedback-grid {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-
-.feedback-card {
-  padding: 20px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(234, 246, 255, 0.34));
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 16px 34px rgba(67, 111, 184, 0.08);
-  backdrop-filter: blur(10px);
-}
-
-.feedback-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.feedback-header h4 {
-  margin: 0;
-  color: #143c72;
-}
-
-.feedback-header span {
-  color: #f4b400;
-  font-size: 20px;
-}
-
-.feedback-card p {
-  margin: 14px 0 0 0;
-  line-height: 1.6;
-  color: #617ca2;
 }
 
 /* RESPONSIVE */
