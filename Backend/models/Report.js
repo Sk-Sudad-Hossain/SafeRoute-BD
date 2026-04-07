@@ -7,6 +7,7 @@ const reportSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     description: {
       type: String,
       required: true,
@@ -16,7 +17,7 @@ const reportSchema = new mongoose.Schema(
     location: {
       address: {
         type: String,
-        required: true,
+        default: "",
         trim: true,
       },
       latitude: {
@@ -60,5 +61,20 @@ const reportSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// 🔥 IMPORTANT: Handle string location automatically
+reportSchema.pre("save", function (next) {
+  if (typeof this.location === "string") {
+    const [lat, lng] = this.location.split(",").map(Number);
+
+    this.location = {
+      address: "",
+      latitude: lat,
+      longitude: lng,
+    };
+  }
+
+  next();
+});
 
 export default mongoose.model("Report", reportSchema);

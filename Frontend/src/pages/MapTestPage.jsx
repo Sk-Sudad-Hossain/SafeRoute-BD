@@ -44,7 +44,16 @@ export default function MapTestPage() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Map Test</h1>
-      <ReportMap reports={sampleReports} />
+
+      {/* 🔥 THIS IS THE FIX */}
+      <div
+        style={{
+          width: "100%",
+          height: "500px", // ✅ MUST HAVE
+        }}
+      >
+        <ReportMap reports={sampleReports} />
+      </div>
     </div>
   );
 }
