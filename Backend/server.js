@@ -50,6 +50,9 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(async () => {
     console.log("MongoDB connected");
+    await seedVehicles();
+    await refreshAllVehicleScores();
+    console.log("Vehicle safety scores synced from saved ratings");
 
     await seedVehicles();
     await refreshAllVehicleScores();
