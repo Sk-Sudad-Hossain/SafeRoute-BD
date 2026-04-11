@@ -20,7 +20,10 @@ const server = http.createServer(app);
 
 export const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+              "http://localhost:5173",
+              "https://your-vercel-app.vercel.app"
+            ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
 });
@@ -51,15 +54,20 @@ mongoose
   .then(async () => {
     console.log("MongoDB connected");
 
-    await seedVehicles();
-    await refreshAllVehicleScores();
-    console.log("Vehicle safety scores synced from saved ratings");
+    try {
+      await seedVehicles();
+      await refreshAllVehicleScores();
+      console.log("Vehicle safety scores synced");
+    } catch (err) {
+      console.error("Seeding error (ignored for deploy):", err.message);
+    }
 
-    const PORT = process.env.PORT || 1715;
+    const PORT = process.env.PORT || 10000;
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {
     console.error("MongoDB connection failed:", error.message);
+    process.exit(1); // IMPORTANT for Render logs clarity
   });

@@ -5,7 +5,7 @@ import { io } from "../server.js";
 
 const router = express.Router();
 
-// Admin creates alert
+
 router.post("/", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { title, description, severity, expiresAt } = req.body;
@@ -36,7 +36,7 @@ router.post("/", authMiddleware, adminOnly, async (req, res) => {
     });
 
     const savedAlert = await newAlert.save();
-    io.emit("new-alert", savedAlert); //  THIS LINE SENDS REAL-TIME NOTIFICATION
+    io.emit("new-alert", savedAlert); 
 
     res.status(201).json({
       message: "Alert created successfully",
@@ -50,7 +50,7 @@ router.post("/", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// Get latest active alert for homepage
+
 router.get("/latest", async (req, res) => {
   try {
     const latestAlert = await Alert.findOne({
@@ -66,7 +66,7 @@ router.get("/latest", async (req, res) => {
   }
 });
 
-// Get all active alerts for user "View All"
+
 router.get("/", async (req, res) => {
   try {
     const alerts = await Alert.find({
@@ -82,7 +82,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Optional admin delete
+
 router.delete("/:id", authMiddleware, adminOnly, async (req, res) => {
   try {
     const deletedAlert = await Alert.findByIdAndDelete(req.params.id);
