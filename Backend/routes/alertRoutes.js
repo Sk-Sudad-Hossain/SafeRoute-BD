@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { title, description, severity, expiresAt } = req.body;
+    const { title, description, severity, expiresAt, location } = req.body;
 
     if (!title || !description || !severity) {
       return res.status(400).json({
@@ -33,6 +33,7 @@ router.post("/", authMiddleware, adminOnly, async (req, res) => {
       severity,
       expiresAt: alertExpiry,
       createdBy: req.user?._id || null,
+      ...(location && { location }),
     });
 
     const savedAlert = await newAlert.save();

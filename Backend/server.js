@@ -57,7 +57,6 @@ mongoose
     try {
       await seedVehicles();
       await refreshAllVehicleScores();
-      console.log("Vehicle safety scores synced");
     } catch (err) {
       console.error("Seeding error (ignored for deploy):", err.message);
     }

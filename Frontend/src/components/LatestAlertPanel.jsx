@@ -54,6 +54,9 @@ const LatestAlertPanel = () => {
       <div className="latest-alert-left">
         <h3>{alertData.title}</h3>
         <p>{alertData.description}</p>
+          {alertData.location?.address && (
+            <p className="alert-panel-location">📍 {alertData.location.address}</p>
+          )}
         <span className="severity-tag">{alertData.severity} Alert</span>
       </div>
 
