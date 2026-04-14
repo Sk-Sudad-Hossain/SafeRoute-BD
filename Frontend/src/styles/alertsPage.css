@@ -247,6 +247,15 @@
   color: #355a78;
 }
 
+.alert-location {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #486b89;
+  font-weight: 600;
+  font-style: italic;
+  max-width: 100%;
+}
+
 @media (max-width: 980px) {
   .alerts-hero {
     grid-template-columns: 1fr;
@@ -264,6 +273,7 @@
     max-width: 300px;
   }
 }
+
 
 @media (max-width: 640px) {
   .alerts-page {

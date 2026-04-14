@@ -154,7 +154,7 @@ const AdminDashboard = () => {
           <button className="sidebar-btn" onClick={() => navigate("/admin/alerts")}>
             Alerts
           </button>
-          <button className="sidebar-btn">Analytics</button>
+          <button className="sidebar-btn" onClick={() => navigate("/admin/analytics")}>Analytics</button>
           <button className="sidebar-btn">Settings</button>
         </nav>
       </aside>

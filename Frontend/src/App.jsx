@@ -14,6 +14,7 @@ import VehiclesPage from "./pages/VehiclesPage";
 import VehicleProfilePage from "./pages/VehicleProfilePage";
 import FeedbackPage from "./pages/FeedbackPage";
 import QrScannerPage from "./pages/QrScannerPage";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/vehicles/:id" element={<VehicleProfilePage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
       <Route path="/scan" element={<QrScannerPage />} />
+      <Route path="/admin/analytics" element={<AdminAnalytics />} />
     </Routes>
   );
 }

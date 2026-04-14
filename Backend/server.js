@@ -14,7 +14,7 @@ import { seedVehicles } from "./utils/seedVehicles.js";
 import { refreshAllVehicleScores } from "./utils/vehicleScores.js";
 
 dotenv.config();
-
+console.log("Gemini Key loaded:", process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 8) + "..." : "NOT FOUND");
 const app = express();
 const server = http.createServer(app);
 
@@ -57,7 +57,6 @@ mongoose
     try {
       await seedVehicles();
       await refreshAllVehicleScores();
-      console.log("Vehicle safety scores synced");
     } catch (err) {
       console.error("Seeding error (ignored for deploy):", err.message);
     }

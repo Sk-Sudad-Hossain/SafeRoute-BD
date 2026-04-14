@@ -7,6 +7,7 @@ const reportSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     description: {
       type: String,
       required: true,
@@ -16,7 +17,7 @@ const reportSchema = new mongoose.Schema(
     location: {
       address: {
         type: String,
-        required: true,
+        default: "",
         trim: true,
       },
       latitude: {
@@ -47,6 +48,27 @@ const reportSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // --- AI Classification Fields ---
+    aiStatus: {
+      type: String,
+      enum: ["Pending", "Verified", "Rejected", "Skipped"],
+      default: "Skipped",
+    },
+    aiNote: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    aiConfidence: {
+      type: Number,
+      default: 0,
+    },
+    aiSuggestedSeverity: {
+      type: String,
+      default: null,
+    },
+    // --------------------------------
+
     reviewedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -60,5 +82,20 @@ const reportSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+//  IMPORTANT: Handle string location automatically
+reportSchema.pre("save", function (next) {
+  if (typeof this.location === "string") {
+    const [lat, lng] = this.location.split(",").map(Number);
+
+    this.location = {
+      address: "",
+      latitude: lat,
+      longitude: lng,
+    };
+  }
+
+  next();
+});
 
 export default mongoose.model("Report", reportSchema);

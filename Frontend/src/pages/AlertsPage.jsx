@@ -86,6 +86,11 @@ const AlertsPage = () => {
 
                   <h3>{alert.title}</h3>
                   <p>{alert.description}</p>
+                  {alert.location?.address && (
+                    <p className="alert-location">
+                      📍 {alert.location.address}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
