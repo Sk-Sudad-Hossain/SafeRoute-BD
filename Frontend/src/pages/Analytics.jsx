@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/adminAnalytics.css";
+import "../styles/analytics.css";
 import banner from "../assets/feature-bg/adminPanel.png";
 
 const API_BASE = "http://localhost:1715/api";
