@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import Report from "../models/Report.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
+import { classifyReport } from "../utils/aiClassifier.js";
 
 const router = express.Router();
 
@@ -18,16 +19,39 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // --- AI Classification ---
+    let aiResult = { status: "Pending", aiNote: "", aiConfidence: 0, suggestedSeverity: null };
+    try {
+      aiResult = await classifyReport(issueType, description);
+    } catch (aiErr) {
+      console.warn("AI classification skipped:", aiErr.message);
+    }
+    // -------------------------
+
     const report = new Report({
       issueType,
       description,
       location,
       severity,
+      status: aiResult.status,          // AI sets initial status
+      adminNote: aiResult.aiNote,       // AI note stored as admin note
+      aiStatus: aiResult.status,
+      aiNote: aiResult.aiNote,
+      aiConfidence: aiResult.confidence,
+      aiSuggestedSeverity: aiResult.suggestedSeverity,
     });
 
     const savedReport = await report.save();
 
-    res.status(201).json(savedReport);
+    res.status(201).json({
+      ...savedReport.toObject(),
+      aiClassification: {
+        status: aiResult.status,
+        note: aiResult.aiNote,
+        confidence: aiResult.confidence,
+        suggestedSeverity: aiResult.suggestedSeverity,
+      },
+    });
 
   } catch (error) {
     res.status(400).json({

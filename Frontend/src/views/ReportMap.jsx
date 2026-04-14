@@ -14,7 +14,7 @@ import "./map.css";
 
 const defaultCenter = [23.8103, 90.4125];
 
-// ✅ CLICK HANDLER
+//  CLICK HANDLER
 function MapClickHandler({ setLocation, setSelectedPosition, selectMode }) {
   const map = useMap();
 
@@ -49,7 +49,7 @@ export default function ReportMap({
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [gpsLoaded, setGpsLoaded] = useState(false);
 
-  const mapRef = useRef(null); // ✅ NEW
+  const mapRef = useRef(null); // 
 
   const points = useMemo(() => {
     return (reports || [])
@@ -75,7 +75,7 @@ export default function ReportMap({
       });
   }, [reports]);
 
-  // ✅ FIXED GPS (LOAD ONCE + MOVE MAP)
+  // FIXED GPS (LOAD ONCE + MOVE MAP)
   useEffect(() => {
     if (!selectMode || gpsLoaded) return;
 
@@ -85,7 +85,7 @@ export default function ReportMap({
 
         setSelectedPosition(coords);
 
-        // 🔥 MOVE MAP ON LOAD
+        //  MOVE MAP ON LOAD
         if (mapRef.current) {
           mapRef.current.flyTo(coords, 15);
         }
@@ -114,7 +114,7 @@ export default function ReportMap({
         zoom={13}
         className="leaflet-map"
         whenCreated={(mapInstance) => {
-          mapRef.current = mapInstance; // ✅ STORE MAP
+          mapRef.current = mapInstance; // STORE MAP
         }}
       >
         {/* CLICK HANDLER */}

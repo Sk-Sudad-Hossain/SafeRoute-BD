@@ -16,6 +16,7 @@ const ReportPage = () => {
   const [searchQuery, setSearchQuery] = useState(""); // 🔥 NEW
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [message, setMessage] = useState("");
+  const [aiResult, setAiResult] = useState(null);
   
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -24,7 +25,7 @@ const ReportPage = () => {
     }));
   };
 
-  // ✅ MAP + GPS + CLICK
+  //  MAP + GPS + CLICK
   const handleLocationSelect = async (coords) => {
     setSelectedLocation(coords);
 
@@ -56,7 +57,7 @@ const ReportPage = () => {
     }
   };
 
-  // 🔍 SEARCH FUNCTION
+  //  SEARCH FUNCTION
 const handleSearchLocation = async () => {
   if (!searchQuery.trim()) return;
 
@@ -85,7 +86,7 @@ const handleSearchLocation = async () => {
         lng: parseFloat(place.lon),
       };
 
-      // 🔥 MOVE MAP + UPDATE FORM
+      //  MOVE MAP + UPDATE FORM
       handleLocationSelect(coords);
     } else {
       alert("Location not found");
@@ -139,6 +140,7 @@ const handleSearchLocation = async () => {
       }
 
       setMessage("Report submitted successfully!");
+      setAiResult(data.aiClassification || null);
 
       setFormData({
         issueType: "",
@@ -185,6 +187,53 @@ const handleSearchLocation = async () => {
           >
             {message}
           </p>
+        )}
+
+        {/* AI Classification Result */}
+        {aiResult && (
+          <div style={{
+            borderRadius: "12px",
+            padding: "14px 18px",
+            marginBottom: "16px",
+            background: aiResult.status === "Verified"
+              ? "rgba(39, 174, 96, 0.15)"
+              : aiResult.status === "Rejected"
+              ? "rgba(231, 76, 60, 0.15)"
+              : "rgba(241, 196, 15, 0.15)",
+            borderLeft: `5px solid ${
+              aiResult.status === "Verified" ? "#27ae60"
+              : aiResult.status === "Rejected" ? "#e74c3c"
+              : "#f1c40f"
+            }`,
+          }}>
+            <p style={{ margin: "0 0 6px", fontWeight: 700, fontSize: "15px", color: "#12344d" }}>
+              🤖 AI Classification Result
+            </p>
+            <p style={{ margin: "0 0 4px", fontSize: "14px", color: "#12344d" }}>
+              <b>Status:</b>{" "}
+              <span style={{
+                fontWeight: 700,
+                color: aiResult.status === "Verified" ? "#27ae60"
+                  : aiResult.status === "Rejected" ? "#e74c3c"
+                  : "#e67e22"
+              }}>
+                {aiResult.status}
+              </span>
+            </p>
+            {aiResult.suggestedSeverity && (
+              <p style={{ margin: "0 0 4px", fontSize: "14px", color: "#12344d" }}>
+                <b>AI Suggested Severity:</b> {aiResult.suggestedSeverity}
+              </p>
+            )}
+            {aiResult.confidence > 0 && (
+              <p style={{ margin: "0 0 4px", fontSize: "14px", color: "#12344d" }}>
+                <b>Confidence:</b> {(aiResult.confidence * 100).toFixed(1)}%
+              </p>
+            )}
+            <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#315b81", fontStyle: "italic" }}>
+              {aiResult.note}
+            </p>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">

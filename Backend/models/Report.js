@@ -48,6 +48,27 @@ const reportSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // --- AI Classification Fields ---
+    aiStatus: {
+      type: String,
+      enum: ["Pending", "Verified", "Rejected", "Skipped"],
+      default: "Skipped",
+    },
+    aiNote: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    aiConfidence: {
+      type: Number,
+      default: 0,
+    },
+    aiSuggestedSeverity: {
+      type: String,
+      default: null,
+    },
+    // --------------------------------
+
     reviewedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -62,7 +83,7 @@ const reportSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🔥 IMPORTANT: Handle string location automatically
+//  IMPORTANT: Handle string location automatically
 reportSchema.pre("save", function (next) {
   if (typeof this.location === "string") {
     const [lat, lng] = this.location.split(",").map(Number);
