@@ -14,7 +14,7 @@ import VehiclesPage from "./pages/VehiclesPage";
 import VehicleProfilePage from "./pages/VehicleProfilePage";
 import FeedbackPage from "./pages/FeedbackPage";
 import QrScannerPage from "./pages/QrScannerPage";
-import AdminAnalytics from "./pages/Adminanlytics";
+import AdminAnalytics from "./pages/Analytics";
 
 export default function App() {
   return (
