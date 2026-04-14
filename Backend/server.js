@@ -14,7 +14,6 @@ import { seedVehicles } from "./utils/seedVehicles.js";
 import { refreshAllVehicleScores } from "./utils/vehicleScores.js";
 
 dotenv.config();
-console.log("Gemini Key loaded:", process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 8) + "..." : "NOT FOUND");
 const app = express();
 const server = http.createServer(app);
 
@@ -22,7 +21,7 @@ export const io = new Server(server, {
   cors: {
     origin: [
               "http://localhost:5173",
-              "https://your-vercel-app.vercel.app"
+              "https://safe-route-bd.vercel.app"
             ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
