@@ -25,11 +25,10 @@ mongoose
   .then(() => {
     console.log("MongoDB connected");
 
-    const PORT = process.env.PORT || 1715;
+    // Hardcode 1089 here to override any hidden environment variables
+    const PORT = 1089; 
+    
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
-  .catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
-  });
