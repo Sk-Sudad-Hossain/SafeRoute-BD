@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:1715/api";
+  import.meta.env.VITE_API_BASE_URL || "https://saferoute-bd.onrender.com/api";
 
 export const buildQrTarget = (vehicleId) => {
   const base = window.location.origin.replace(/\/$/, "");
