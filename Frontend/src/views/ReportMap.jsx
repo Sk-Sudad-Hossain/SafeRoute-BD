@@ -61,17 +61,29 @@ export default function ReportMap({
             : [r.location.latitude, r.location.longitude];
 
         return {
-          id: r._id || r.id,
-          lat,
-          lng,
-          severity: Number(r.severity ?? 3),
-          status: r.status ?? "Pending",
-          label: r.issueCategory?.name || "Issue",
-          description: r.description || "",
-          locationLabel:
-            `${r.location?.upazila || ""} ${r.location?.district || ""}`.trim(),
-          createdAt: r.createdAt,
+        id: r._id || r.id,
+        lat,
+        lng,
+        severity: Number(r.severity ?? 3),
+        status: r.status ?? "Pending",
+        label: r.issueType || "Issue",
+        description: r.description || "",
+        locationLabel: 
+          typeof r.location === "string" 
+            ? r.location 
+            : (() => {
+                const parts = [];
+                if (r.location?.upazila) parts.push(r.location.upazila);
+                if (r.location?.district) parts.push(r.location.district);
+                if (r.location?.city && !parts.includes(r.location.city)) parts.push(r.location.city);
+                return parts.length > 0 ? parts.join(", ") : (r.location?.address || "Unknown Location");
+              })(),
+        createdAt: r.createdAt,
+        imageUrl: r.Attached_Image_URL || "",
+        reporterId: r.reporterId || "Unknown",
+        adminNote: r.adminNote || "",
         };
+
       });
   }, [reports]);
 
@@ -166,19 +178,71 @@ export default function ReportMap({
                 fillOpacity: 1,
               }}
             >
-              <Popup>
-                <div className="map-info">
-                  <strong>{p.label}</strong>
-                  <div>{p.locationLabel}</div>
-                  <div>{p.description || "No description."}</div>
-                  <div>
-                    Severity: {p.severity} | Status: {p.status}
+            <Popup maxWidth={400} className="report-popup">
+            <div className="map-info">
+                {/* IMAGE AT TOP FOR CLEAR VISIBILITY */}
+                {p.imageUrl ? (
+                  <div className="popup-image-wrapper-top">
+                    <img
+                      src={p.imageUrl}
+                      alt="Report attachment"
+                      className="popup-image-large"
+                      onError={(e) => {
+                        e.target.alt = "Image failed to load";
+                        e.target.style.backgroundColor = "#f0f0f0";
+                      }}
+                    />
                   </div>
-                  {p.createdAt && (
-                    <div>{new Date(p.createdAt).toLocaleString()}</div>
-                  )}
+                ) : (
+                  <div className="popup-no-image">📷 No image attached</div>
+                )}
+
+                <div className="popup-header">
+                  <strong className="popup-title">{p.label}</strong>
+                  <span className={`popup-status status-${p.status?.toLowerCase()}`}>{p.status}</span>
                 </div>
-              </Popup>
+
+                {p.locationLabel && (
+                  <div className="popup-location-name">
+                    <strong>📍 Location:</strong>
+                    <p>{p.locationLabel}</p>
+                  </div>
+                )}
+
+                <div className="popup-section">
+                  <strong>Description</strong>
+                  <p>{p.description || "No description provided."}</p>
+                </div>
+
+                <div className="popup-meta">
+                  <div className="meta-item">
+                    <span className="meta-label">Severity:</span>
+                    <span className={`severity-${p.severity}`}>{p.severity}</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Status:</span>
+                    <span>{p.status}</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Reporter ID:</span>
+                    <span>{p.reporterId}</span>
+                  </div>
+                </div>
+
+                {p.adminNote && (
+                  <div className="popup-section admin-note">
+                    <strong>Admin Note</strong>
+                    <p>{p.adminNote}</p>
+                  </div>
+                )}
+
+                {p.createdAt && (
+                  <div className="popup-date">
+                    🕐 {new Date(p.createdAt).toLocaleString()}
+                  </div>
+                )}
+            </div>
+            </Popup>
             </CircleMarker>
           );
         })}

@@ -17,10 +17,12 @@ export function createReport(payload = {}) {
       upazila: "",
       address: ""
     },
+    issueType: payload.issueType ?? payload.issueCategory?.name ?? "",
     issueCategory: payload.issueCategory ?? null,
     severity: payload.severity ?? 3,
     description: payload.description ?? "",
     attachments: payload.attachments ?? [],
+    Attached_Image_URL: payload.Attached_Image_URL ?? payload.attachedImageUrl ?? "",
     status: payload.status ?? "PENDING",
     createdAt: payload.createdAt ?? new Date().toISOString()
   };

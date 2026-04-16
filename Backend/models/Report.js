@@ -32,6 +32,14 @@ const reportSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    Attached_Image_URL:
+      {
+        type: String,
+        required: false,
+        
+      },
+    
+
   },
   { timestamps: true }
 );
