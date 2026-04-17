@@ -7,7 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/Homepage";
 import ReportPage from "./pages/ReportPage";
 import MyReportsPage from "./pages/MyReportsPage";
-import MapTestPage from "./pages/MapTestPage";
+import ReportMapPage from "./pages/ReportMapPage";
 import AdminAlerts from "./pages/AdminAlerts";
 import AlertsPage from "./pages/AlertsPage";
 import VehiclesPage from "./pages/VehiclesPage";
@@ -24,7 +24,7 @@ export default function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/report" element={<ReportPage />} />
       <Route path="/reports" element={<MyReportsPage />} />
-      <Route path="/map-test" element={<MapTestPage />} />
+      <Route path="/map-test" element={<ReportMapPage />} />
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute> }/>
       <Route path="/admin/alerts" element={<AdminAlerts />} />
       <Route path="/alerts" element={<AlertsPage />} />
