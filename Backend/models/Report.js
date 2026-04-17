@@ -14,6 +14,22 @@ const reportSchema = new mongoose.Schema(
       trim: true,
     },
 
+    incidentTime: {
+      type: Date,
+      required: true,
+    },
+
+    photoUrl: {
+      type: String,
+      default: "",
+    },
+
+    reportedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     location: {
       address: {
         type: String,
