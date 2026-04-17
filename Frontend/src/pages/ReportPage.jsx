@@ -4,6 +4,7 @@ import ReportMap from "../views/ReportMap";
 import "../styles/auth.css";
 
 const ReportPage = () => {
+  const API = import.meta.env.VITE_API_URL;
   const [formData, setFormData] = useState({
     issueType: "",
     description: "",
@@ -124,8 +125,7 @@ const handleSearchLocation = async () => {
         },
         severity: formData.severity,
       };
-
-      const response = await fetch("http://localhost:1715/api/reports", {
+      const response = await fetch(`${API}/reports`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

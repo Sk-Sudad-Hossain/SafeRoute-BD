@@ -3,7 +3,7 @@ import "../styles/adminDashboard.css";
 import banner from "../assets/feature-bg/adminPanel.png";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

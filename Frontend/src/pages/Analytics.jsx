@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/analytics.css";
 import banner from "../assets/feature-bg/adminPanel.png";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const MONTHS = [
   "January","February","March","April","May","June",

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import "../styles/alertNotifications.css";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const STORAGE_MODE_KEY = "alertNotificationMode";
 const STORAGE_UNREAD_KEY = "alertNotificationUnread";

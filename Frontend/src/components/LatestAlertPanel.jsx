@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/latestAlertPanel.css";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 const STORAGE_MODE_KEY = "alertNotificationMode";
 
 const LatestAlertPanel = () => {
