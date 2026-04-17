@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/alertsPage.css";
 import alertMap from "../assets/feature-bg/alertMap.png";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const AlertsPage = () => {
   const [alerts, setAlerts] = useState([]);

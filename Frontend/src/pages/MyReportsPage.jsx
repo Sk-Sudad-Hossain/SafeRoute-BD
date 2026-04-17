@@ -4,9 +4,9 @@ import "../styles/auth.css";
 
 const MyReportsPage = () => {
   const [reports, setReports] = useState([]);
-
+  const API = import.meta.env.VITE_API_URL;
   useEffect(() => {
-    fetch("http://localhost:1715/api/reports")
+    fetch(`${API}/reports`)
       .then((res) => res.json())
       .then((data) => setReports(data))
       .catch((err) => console.error("Fetch error:", err));

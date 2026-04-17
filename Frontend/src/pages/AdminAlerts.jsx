@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "../styles/adminAlerts.css";
 import alertMap from "../assets/feature-bg/alertMap.png";
 
-const API_BASE = "http://localhost:1715/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 // --- Map click + flyTo handler ---
 function MapClickHandler({ onLocationSelect, setSelectedPosition }) {
