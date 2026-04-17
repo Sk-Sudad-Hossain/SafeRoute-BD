@@ -13,7 +13,15 @@ const reportSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
+    photoUrl: {
+  type: String,
+  default: "",
+},
+reportedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+},
     location: {
       address: {
         type: String,

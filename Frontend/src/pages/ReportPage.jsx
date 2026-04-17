@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ReportMap from "../views/ReportMap";
+import { useAuth } from "../context/AuthContext";
 import "../styles/auth.css";
 
 const ReportPage = () => {
+  const API = import.meta.env.VITE_API_URL;
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     issueType: "",
     description: "",
@@ -13,10 +18,15 @@ const ReportPage = () => {
     severity: "",
   });
 
-  const [searchQuery, setSearchQuery] = useState(""); // 🔥 NEW
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [message, setMessage] = useState("");
-  
+
+  //  NEW: photo state
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -24,7 +34,33 @@ const ReportPage = () => {
     }));
   };
 
-  // ✅ MAP + GPS + CLICK
+  //  NEW: handle photo selection
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate type
+    if (!file.type.startsWith("image/")) {
+      setMessage("Please select an image file");
+      return;
+    }
+
+    // Validate size (5 MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("Image must be under 5 MB");
+      return;
+    }
+
+    setPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setMessage("");
+  };
+
+  const handleRemovePhoto = () => {
+    setPhoto(null);
+    setPhotoPreview("");
+  };
+
   const handleLocationSelect = async (coords) => {
     setSelectedLocation(coords);
 
@@ -56,80 +92,91 @@ const ReportPage = () => {
     }
   };
 
-  // 🔍 SEARCH FUNCTION
-const handleSearchLocation = async () => {
-  if (!searchQuery.trim()) return;
+  const handleSearchLocation = async () => {
+    if (!searchQuery.trim()) return;
 
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        searchQuery
-      )}&limit=1`,
-      {
-        headers: {
-          "Accept": "application/json",
-          "User-Agent": "SafeRoute-App", // 🔥 IMPORTANT
-        },
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          searchQuery
+        )}&limit=1`,
+        {
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "SafeRoute-App",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const place = data[0];
+        const coords = {
+          lat: parseFloat(place.lat),
+          lng: parseFloat(place.lon),
+        };
+        handleLocationSelect(coords);
+      } else {
+        alert("Location not found");
       }
-    );
-
-    const data = await res.json();
-
-    console.log("Search result:", data); // 🔍 DEBUG
-
-    if (data && data.length > 0) {
-      const place = data[0];
-
-      const coords = {
-        lat: parseFloat(place.lat),
-        lng: parseFloat(place.lon),
-      };
-
-      // 🔥 MOVE MAP + UPDATE FORM
-      handleLocationSelect(coords);
-    } else {
-      alert("Location not found");
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Search failed. Try again.");
     }
-  } catch (err) {
-    console.error("Search error:", err);
-    alert("Search failed. Try again.");
-  }
-};
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    try {
-      if (
-        !formData.issueType ||
-        !formData.description ||
-        !formData.location ||
-        !formData.latitude ||
-        !formData.longitude ||
-        !formData.severity
-      ) {
-        setMessage("All fields are required");
-        return;
-      }
+    if (!token) {
+      setMessage("You must be logged in to submit a report.");
+      setTimeout(() => navigate("/login"), 1500);
+      return;
+    }
 
-      const payload = {
-        issueType: formData.issueType,
-        description: formData.description,
-        location: {
+    if (
+      !formData.issueType ||
+      !formData.description ||
+      !formData.location ||
+      !formData.latitude ||
+      !formData.longitude ||
+      !formData.severity
+    ) {
+      setMessage("All fields are required");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      //  Use FormData so we can send a file
+      const fd = new FormData();
+      fd.append("issueType", formData.issueType);
+      fd.append("description", formData.description);
+      fd.append("severity", formData.severity);
+      fd.append(
+        "location",
+        JSON.stringify({
           address: formData.location,
           latitude: Number(formData.latitude),
           longitude: Number(formData.longitude),
-        },
-        severity: formData.severity,
-      };
+        })
+      );
 
-      const response = await fetch("http://localhost:1715/api/reports", {
+      if (photo) {
+        fd.append("photo", photo);
+      }
+
+      const response = await fetch(`${API}/reports`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          // NOTE: do NOT set Content-Type manually for FormData
+          // the browser will set it correctly with the boundary
         },
-        body: JSON.stringify(payload),
+        body: fd,
       });
 
       const data = await response.json();
@@ -148,12 +195,15 @@ const handleSearchLocation = async () => {
         longitude: "",
         severity: "",
       });
-
       setSelectedLocation(null);
       setSearchQuery("");
+      setPhoto(null);
+      setPhotoPreview("");
     } catch (error) {
       setMessage(error.message);
       console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -178,9 +228,7 @@ const handleSearchLocation = async () => {
         {message && (
           <p
             className={
-              message.includes("successfully")
-                ? "auth-success"
-                : "auth-error"
+              message.includes("successfully") ? "auth-success" : "auth-error"
             }
           >
             {message}
@@ -188,7 +236,6 @@ const handleSearchLocation = async () => {
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">
-
           {/* 🔍 SEARCH BAR */}
           <div className="auth-field">
             <label>Search Location</label>
@@ -242,6 +289,81 @@ const handleSearchLocation = async () => {
             />
           </div>
 
+          {/*  NEW: PHOTO UPLOAD */}
+          <div className="auth-field">
+            <label>Photo Evidence (Optional)</label>
+
+            {!photoPreview ? (
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <label
+                  className="auth-button"
+                  style={{
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 1,
+                    minWidth: "140px",
+                  }}
+                >
+                  📷 Take Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handlePhotoChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                <label
+                  className="auth-button"
+                  style={{
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 1,
+                    minWidth: "140px",
+                  }}
+                >
+                  📁 Choose File
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
+            ) : (
+              <div style={{ marginTop: "10px" }}>
+                <img
+                  src={photoPreview}
+                  alt="Preview"
+                  style={{
+                    width: "100%",
+                    maxHeight: "300px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                    border: "2px solid #ddd",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="auth-button"
+                  style={{
+                    marginTop: "8px",
+                    background: "#e74c3c",
+                  }}
+                >
+                  ❌ Remove Photo
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* MAP */}
           <div className="auth-field">
             <label>Select Location on Map</label>
@@ -291,14 +413,19 @@ const handleSearchLocation = async () => {
               onChange={handleChange}
             >
               <option value="">Select severity</option>
-<option value="Low">Low</option>
-<option value="Medium">Medium</option>
-<option value="High">High</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
             </select>
           </div>
 
-          <button type="submit" className="auth-button">
-            Submit Report
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={submitting}
+            style={{ opacity: submitting ? 0.6 : 1 }}
+          >
+            {submitting ? "Submitting..." : "Submit Report"}
           </button>
         </form>
 

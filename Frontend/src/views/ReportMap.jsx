@@ -75,7 +75,7 @@ export default function ReportMap({
       });
   }, [reports]);
 
-  // ✅ FIXED GPS (LOAD ONCE + MOVE MAP)
+  //  GPS (LOAD ONCE + MOVE MAP)
   useEffect(() => {
     if (!selectMode || gpsLoaded) return;
 
@@ -114,7 +114,7 @@ export default function ReportMap({
         zoom={13}
         className="leaflet-map"
         whenCreated={(mapInstance) => {
-          mapRef.current = mapInstance; // ✅ STORE MAP
+          mapRef.current = mapInstance; 
         }}
       >
         {/* CLICK HANDLER */}
