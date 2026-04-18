@@ -36,7 +36,6 @@ const SEVERITY_COLORS = {
 function RiskGauge({ score, band, color, label, nearbyCount }) {
   return (
     <div style={{ marginTop: 10 }}>
-      {/* Title row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
         <span style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.4px" }}>
           Zone Risk Score
@@ -52,7 +51,6 @@ function RiskGauge({ score, band, color, label, nearbyCount }) {
         </span>
       </div>
 
-      {/* Bar */}
       <div style={{ background: "#e5e7eb", borderRadius: 99, height: 8, overflow: "hidden" }}>
         <div style={{
           width: `${score}%`,
@@ -63,7 +61,6 @@ function RiskGauge({ score, band, color, label, nearbyCount }) {
         }} />
       </div>
 
-      {/* Foot row */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
         <span style={{ fontSize: 10, color: "#6b7280" }}>
           {nearbyCount > 0
@@ -90,10 +87,9 @@ function ReportPopup({ p, risk }) {
       color: "#1f2937",
       lineHeight: 1.5,
     }}>
-      {/* ── Header stripe ── */}
       <div style={{
         background: markerColor,
-        margin: "-8px -12px 10px",   /* bleed over leaflet padding */
+        margin: "-8px -12px 10px",
         padding: "8px 12px",
         borderRadius: "8px 8px 0 0",
         display: "flex",
@@ -113,7 +109,6 @@ function ReportPopup({ p, risk }) {
         </div>
       </div>
 
-      {/* ── Description ── */}
       <p style={{
         margin: "0 0 10px",
         fontSize: 12.5,
@@ -127,7 +122,6 @@ function ReportPopup({ p, risk }) {
         {p.description || "No description provided."}
       </p>
 
-      {/* ── Severity + Status badges ── */}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{
           fontSize: 11, fontWeight: 700,
@@ -147,7 +141,6 @@ function ReportPopup({ p, risk }) {
         </span>
       </div>
 
-      {/* ── Timestamp ── */}
       {p.createdAt && (
         <div style={{
           fontSize: 11, color: "#6b7280",
@@ -162,10 +155,8 @@ function ReportPopup({ p, risk }) {
         </div>
       )}
 
-      {/* ── Divider ── */}
       <div style={{ height: 1, background: "#e5e7eb", margin: "8px 0" }} />
 
-      {/* ── Risk score gauge ── */}
       <RiskGauge {...risk} />
     </div>
   );
@@ -196,7 +187,7 @@ export default function ReportMap({
   const [gpsLoaded, setGpsLoaded] = useState(false);
   const mapRef = useRef(null);
 
-  // Build normalised points
+  // Build normalised points (with coordinate validation)
   const points = useMemo(() => {
     return (reports || [])
       .filter((r) => r.location)
@@ -208,28 +199,30 @@ export default function ReportMap({
 
         return {
           id: r._id || r.id,
-          lat,
-          lng,
+          lat: Number(lat),
+          lng: Number(lng),
           severity: r.severity ?? "Low",
           status: r.status ?? "Pending",
-          label: r.issueCategory?.name || "Issue",
+          label: r.issueCategory?.name || r.issueType || "Issue",
           description: r.description || "",
           locationLabel: `${r.location?.upazila || ""} ${r.location?.district || ""}`.trim(),
           createdAt: r.createdAt,
         };
-      });
+      })
+      // ✅ FILTER OUT any point with invalid coordinates (NaN, undefined, etc.)
+      .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   }, [reports]);
 
-  // Pre-compute risk scores for every point (so we can pass allPoints context)
+  // Compute risk scores for every point (memoised — only recalc when points change)
   const riskScores = useMemo(() => {
     const map = {};
-    points.forEach((p) => {
+    for (const p of points) {
       map[p.id] = calcRiskScore(p, points);
-    });
+    }
     return map;
   }, [points]);
 
-  // GPS (select mode only)
+  // ✅ FIXED GPS (LOAD ONCE + MOVE MAP)
   useEffect(() => {
     if (!selectMode || gpsLoaded) return;
     navigator.geolocation.getCurrentPosition(
@@ -254,7 +247,9 @@ export default function ReportMap({
         center={center}
         zoom={13}
         className="leaflet-map"
-        whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
+        whenCreated={(mapInstance) => {
+          mapRef.current = mapInstance;
+        }}
       >
         <MapClickHandler
           setLocation={setLocation}

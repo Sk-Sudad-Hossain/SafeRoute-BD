@@ -1,67 +1,124 @@
 import express from "express";
 import mongoose from "mongoose";
+import path from "path";
+import fs from "fs";
 import Report from "../models/Report.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
-import { classifyReport } from "../utils/aiClassifier.js";
+import multer from "multer";
 
 const router = express.Router();
 
+// Ensure uploads folder exists
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log(" Created uploads directory:", uploadsDir);
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, "_");
+    cb(null, Date.now() + "-" + safeName);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
 const allowedStatuses = ["Verified", "Rejected", "Resolved"];
 
-// Create report
-router.post("/", async (req, res) => {
-  try {
-    const { issueType, description, location, severity } = req.body;
+// Create report (must be logged in, accepts optional photo)
+router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
+  console.log("=== Report POST received ===");
+  console.log("   req.body:", req.body);
+  console.log("   req.file:", req.file);
+  console.log("   req.user:", req.user?._id);
 
-    if (!issueType || !description || !location || !severity) {
+  try {
+    const { issueType, description, severity, incidentTime } = req.body;
+
+    // location comes as a JSON string when using FormData
+    let location;
+    try {
+      location =
+        typeof req.body.location === "string"
+          ? JSON.parse(req.body.location)
+          : req.body.location;
+    } catch (err) {
+      console.error(" Location parse error:", err);
+      return res.status(400).json({ message: "Invalid location format" });
+    }
+
+    if (!issueType || !description || !location || !severity || !incidentTime) {
+      console.error(" Missing fields:", {
+        issueType,
+        description,
+        location,
+        severity,
+        incidentTime,
+      });
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
-    // --- AI Classification ---
-    let aiResult = { status: "Pending", aiNote: "", aiConfidence: 0, suggestedSeverity: null };
-    try {
-      aiResult = await classifyReport(issueType, description);
-    } catch (aiErr) {
-      console.warn("AI classification skipped:", aiErr.message);
+    // Photo is required
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Photo evidence is required",
+      });
     }
-    // -------------------------
+
+    // Parse and validate incidentTime
+    const incidentDate = new Date(incidentTime);
+    if (isNaN(incidentDate.getTime())) {
+      return res.status(400).json({ message: "Invalid incident time" });
+    }
+    if (incidentDate > new Date()) {
+      return res
+        .status(400)
+        .json({ message: "Incident time cannot be in the future" });
+    }
+
+    const photoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    console.log("   photoUrl:", photoUrl);
 
     const report = new Report({
       issueType,
       description,
       location,
       severity,
-      status: aiResult.status,          // AI sets initial status
-      adminNote: aiResult.aiNote,       // AI note stored as admin note
-      aiStatus: aiResult.status,
-      aiNote: aiResult.aiNote,
-      aiConfidence: aiResult.confidence,
-      aiSuggestedSeverity: aiResult.suggestedSeverity,
+      incidentTime: incidentDate,
+      photoUrl,
+      reportedBy: req.user._id,
     });
 
     const savedReport = await report.save();
 
-    res.status(201).json({
-      ...savedReport.toObject(),
-      aiClassification: {
-        status: aiResult.status,
-        note: aiResult.aiNote,
-        confidence: aiResult.confidence,
-        suggestedSeverity: aiResult.suggestedSeverity,
-      },
-    });
-
+    console.log(" Report saved:", savedReport._id);
+    res.status(201).json(savedReport);
   } catch (error) {
+    console.error(" Report creation error:", error);
     res.status(400).json({
       message: "Failed to create report",
-      error: error.message,
+      error: error.message || "Unknown error",
     });
   }
 });
 
-// Get all reports
+// Get all reports (public - used by map and admin dashboard)
 router.get("/", async (req, res) => {
   try {
     const reports = await Report.find().sort({ createdAt: -1 });
@@ -69,6 +126,22 @@ router.get("/", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch reports",
+      error: error.message,
+    });
+  }
+});
+
+// Get reports created by the logged-in user
+// IMPORTANT: this must come BEFORE "/:id" route
+router.get("/mine", authMiddleware, async (req, res) => {
+  try {
+    const reports = await Report.find({ reportedBy: req.user._id }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(reports);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch your reports",
       error: error.message,
     });
   }
@@ -159,6 +232,15 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// Multer error handler
+router.use((err, req, res, next) => {
+  console.error(" Multer error:", err);
+  res.status(400).json({
+    message: err.message || "Upload failed",
+    error: err.toString(),
+  });
 });
 
 export default router;

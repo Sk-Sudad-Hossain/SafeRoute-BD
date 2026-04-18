@@ -48,7 +48,7 @@ const RegisterPage = () => {
 
         {error && <p className="auth-error">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
           <div className="auth-field">
             <label>Full Name</label>
             <input
@@ -57,6 +57,7 @@ const RegisterPage = () => {
               placeholder="Your full name"
               value={formData.name}
               onChange={handleChange}
+              autoComplete="off"
             />
           </div>
 
@@ -68,6 +69,7 @@ const RegisterPage = () => {
               placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="off"
             />
           </div>
 
@@ -79,6 +81,7 @@ const RegisterPage = () => {
               placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="new-password"
             />
           </div>
 
