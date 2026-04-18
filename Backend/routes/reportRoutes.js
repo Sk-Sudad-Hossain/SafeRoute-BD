@@ -1,42 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
-import path from "path";
-import fs from "fs";
 import Report from "../models/Report.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
 import { classifyReport } from "../utils/aiClassifier.js";
+import { upload } from "../config/cloudinary.js";
 import multer from "multer";
 
 const router = express.Router();
-
-// Ensure uploads folder exists
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log(" Created uploads directory:", uploadsDir);
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, "_");
-    cb(null, Date.now() + "-" + safeName);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
-    }
-  },
-});
 
 const allowedStatuses = ["Verified", "Rejected", "Resolved"];
 
@@ -93,7 +63,8 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
         .json({ message: "Incident time cannot be in the future" });
     }
 
-    const photoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    // Cloudinary returns the full hosted URL on req.file.path
+    const photoUrl = req.file.path;
     console.log("   photoUrl:", photoUrl);
 
     // --- 🤖 AI CLASSIFICATION ---
@@ -271,9 +242,9 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// Multer error handler
+// Multer/Cloudinary error handler
 router.use((err, req, res, next) => {
-  console.error(" Multer error:", err);
+  console.error(" Upload error:", err);
   res.status(400).json({
     message: err.message || "Upload failed",
     error: err.toString(),
