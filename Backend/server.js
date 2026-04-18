@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
+import path from "path";
 import { Server } from "socket.io";
 
 import alertRoutes from "./routes/alertRoutes.js";
@@ -35,6 +36,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Serve uploaded photos as static files
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
