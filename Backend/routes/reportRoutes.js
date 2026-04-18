@@ -1,41 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
-import path from "path";
-import fs from "fs";
 import Report from "../models/Report.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
-import multer from "multer";
+import { classifyReport } from "../utils/aiClassifier.js";
+import { upload } from "../config/cloudinary.js";
 
 const router = express.Router();
-
-// Ensure uploads folder exists
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log(" Created uploads directory:", uploadsDir);
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, "_");
-    cb(null, Date.now() + "-" + safeName);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
-    }
-  },
-});
 
 const allowedStatuses = ["Verified", "Rejected", "Resolved"];
 
@@ -92,8 +62,25 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
         .json({ message: "Incident time cannot be in the future" });
     }
 
-    const photoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    // Cloudinary returns the full hosted URL on req.file.path
+    const photoUrl = req.file.path;
     console.log("   photoUrl:", photoUrl);
+
+    // --- 🤖 AI CLASSIFICATION ---
+    // Photo is attached → hasMedia = true (gives confidence boost)
+    let aiResult = {
+      status: "Pending",
+      aiNote: "",
+      confidence: 0,
+      suggestedSeverity: null,
+    };
+    try {
+      aiResult = await classifyReport(issueType, description, true);
+      console.log(" AI classification result:", aiResult);
+    } catch (aiErr) {
+      console.warn(" AI classification skipped:", aiErr.message);
+    }
+    // ---------------------------
 
     const report = new Report({
       issueType,
@@ -103,12 +90,29 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
       incidentTime: incidentDate,
       photoUrl,
       reportedBy: req.user._id,
+      // AI sets initial status (Pending / Verified / Rejected)
+      status: aiResult.status,
+      adminNote: aiResult.aiNote,
+      aiStatus: aiResult.status,
+      aiNote: aiResult.aiNote,
+      aiConfidence: aiResult.confidence,
+      aiSuggestedSeverity: aiResult.suggestedSeverity,
     });
 
     const savedReport = await report.save();
 
     console.log(" Report saved:", savedReport._id);
-    res.status(201).json(savedReport);
+
+    // Return report + AI result for frontend display
+    res.status(201).json({
+      ...savedReport.toObject(),
+      aiClassification: {
+        status: aiResult.status,
+        note: aiResult.aiNote,
+        confidence: aiResult.confidence,
+        suggestedSeverity: aiResult.suggestedSeverity,
+      },
+    });
   } catch (error) {
     console.error(" Report creation error:", error);
     res.status(400).json({
@@ -206,6 +210,10 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
       });
     }
 
+    // Note: we intentionally do NOT pass runValidators here.
+    // We only change status + adminNote, both of which are validated manually above.
+    // Without this, Mongoose would re-check every required field on the document,
+    // which would fail for any legacy report missing newer required fields.
     const updatedReport = await Report.findByIdAndUpdate(
       req.params.id,
       {
@@ -214,7 +222,6 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
       },
       {
         new: true,
-        runValidators: true,
       }
     );
 
@@ -234,9 +241,9 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// Multer error handler
+// Multer/Cloudinary error handler
 router.use((err, req, res, next) => {
-  console.error(" Multer error:", err);
+  console.error(" Upload error:", err);
   res.status(400).json({
     message: err.message || "Upload failed",
     error: err.toString(),
