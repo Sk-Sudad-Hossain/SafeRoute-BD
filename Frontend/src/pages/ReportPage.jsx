@@ -264,12 +264,15 @@ const ReportPage = () => {
       !formData.issueType ||
       !formData.description ||
       !formData.location ||
-      !formData.latitude ||
-      !formData.longitude ||
       !formData.severity ||
       !formData.incidentTime
     ) {
-      toast.error("All fields are required");
+      toast.error("Please fill all the required text and dropdown fields");
+      return;
+    }
+
+    if (!formData.latitude || !formData.longitude) {
+      toast.error("Please select a location on the map or use your current location", { duration: 4000 });
       return;
     }
 
