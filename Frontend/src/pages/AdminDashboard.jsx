@@ -297,6 +297,39 @@ const AdminDashboard = () => {
                 <b>Current Admin Note:</b>{" "}
                 {selectedReport.adminNote || "No note yet"}
               </p>
+              {selectedReport.photoUrl && (
+                <div style={{ marginTop: "12px" }}>
+                  <p>
+                    <b>Media Evidence:</b>
+                  </p>
+                  <img
+                    src={selectedReport.photoUrl}
+                    alt="Report evidence"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "250px",
+                      borderRadius: "8px",
+                      marginTop: "8px",
+                      objectFit: "contain",
+                      display: "block"
+                    }}
+                  />
+                  <a
+                    href={selectedReport.photoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      marginTop: "5px",
+                      fontSize: "13px",
+                      color: "#3b82f6",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    View Full Image
+                  </a>
+                </div>
+              )}
             </div>
 
             <textarea
