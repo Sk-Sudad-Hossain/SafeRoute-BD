@@ -30,7 +30,7 @@ const AdminAlerts = () => {
   const [expiresAt, setExpiresAt] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // --- Location states (same pattern as ReportPage) ---
+  // --- Location states ---
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [locationAddress, setLocationAddress] = useState("");
