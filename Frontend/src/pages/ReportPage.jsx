@@ -118,7 +118,13 @@ const ReportPage = () => {
 
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}&zoom=18&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            "Accept": "application/json",
+            "User-Agent": "SafeRoute-App",
+          },
+        }
       );
 
       const data = await res.json();
@@ -139,6 +145,7 @@ const ReportPage = () => {
         ...prev,
         latitude: coords.lat,
         longitude: coords.lng,
+        location: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
       }));
     }
   };
@@ -264,15 +271,12 @@ const ReportPage = () => {
       !formData.issueType ||
       !formData.description ||
       !formData.location ||
+      !formData.latitude ||
+      !formData.longitude ||
       !formData.severity ||
       !formData.incidentTime
     ) {
-      toast.error("Please fill all the required text and dropdown fields");
-      return;
-    }
-
-    if (!formData.latitude || !formData.longitude) {
-      toast.error("Please select a location on the map or use your current location", { duration: 4000 });
+      toast.error("All fields are required");
       return;
     }
 
