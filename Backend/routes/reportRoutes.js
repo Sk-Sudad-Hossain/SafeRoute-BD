@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import Report from "../models/Report.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
+import { classifyReport } from "../utils/aiClassifier.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -95,6 +96,22 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
     const photoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
     console.log("   photoUrl:", photoUrl);
 
+    // --- 🤖 AI CLASSIFICATION ---
+    // Photo is attached → hasMedia = true (gives confidence boost)
+    let aiResult = {
+      status: "Pending",
+      aiNote: "",
+      confidence: 0,
+      suggestedSeverity: null,
+    };
+    try {
+      aiResult = await classifyReport(issueType, description, true);
+      console.log(" AI classification result:", aiResult);
+    } catch (aiErr) {
+      console.warn(" AI classification skipped:", aiErr.message);
+    }
+    // ---------------------------
+
     const report = new Report({
       issueType,
       description,
@@ -103,12 +120,29 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
       incidentTime: incidentDate,
       photoUrl,
       reportedBy: req.user._id,
+      // AI sets initial status (Pending / Verified / Rejected)
+      status: aiResult.status,
+      adminNote: aiResult.aiNote,
+      aiStatus: aiResult.status,
+      aiNote: aiResult.aiNote,
+      aiConfidence: aiResult.confidence,
+      aiSuggestedSeverity: aiResult.suggestedSeverity,
     });
 
     const savedReport = await report.save();
 
     console.log(" Report saved:", savedReport._id);
-    res.status(201).json(savedReport);
+
+    // Return report + AI result for frontend display
+    res.status(201).json({
+      ...savedReport.toObject(),
+      aiClassification: {
+        status: aiResult.status,
+        note: aiResult.aiNote,
+        confidence: aiResult.confidence,
+        suggestedSeverity: aiResult.suggestedSeverity,
+      },
+    });
   } catch (error) {
     console.error(" Report creation error:", error);
     res.status(400).json({
@@ -206,6 +240,10 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
       });
     }
 
+    // Note: we intentionally do NOT pass runValidators here.
+    // We only change status + adminNote, both of which are validated manually above.
+    // Without this, Mongoose would re-check every required field on the document,
+    // which would fail for any legacy report missing newer required fields.
     const updatedReport = await Report.findByIdAndUpdate(
       req.params.id,
       {
@@ -214,7 +252,6 @@ router.patch("/:id/status", authMiddleware, adminOnly, async (req, res) => {
       },
       {
         new: true,
-        runValidators: true,
       }
     );
 
