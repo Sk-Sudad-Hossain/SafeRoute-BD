@@ -20,10 +20,33 @@ const buildVehicleResponse = (vehicle, req) => {
   };
 };
 
-
+// GET /api/vehicles?name=&city=&route=&minScore=&minRatings=&type=
 router.get("/", async (req, res) => {
   try {
-    const vehicles = await Vehicle.find().sort({ city: 1, name: 1 });
+    const { name, city, route, minScore, minRatings, type } = req.query;
+
+    const filter = {};
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+    if (city) {
+      filter.city = { $regex: city, $options: "i" };
+    }
+    if (route) {
+      filter.route = { $regex: route, $options: "i" };
+    }
+    if (type) {
+      filter.vehicleType = { $regex: type, $options: "i" };
+    }
+    if (minScore) {
+      filter.averageSafetyScore = { $gte: Number(minScore) };
+    }
+    if (minRatings) {
+      filter.totalRatings = { $gte: Number(minRatings) };
+    }
+
+    const vehicles = await Vehicle.find(filter).sort({ city: 1, name: 1 });
     res.status(200).json(vehicles.map((vehicle) => buildVehicleResponse(vehicle, req)));
   } catch (error) {
     res.status(500).json({
@@ -57,9 +80,18 @@ router.get("/:id", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(8);
 
+    // Recent incidents = ratings with safetyScore < 3 (low-rated)
+    const incidents = await VehicleRating.find({
+      vehicle: vehicle._id,
+      safetyScore: { $lt: 3 },
+    })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
     res.status(200).json({
       ...buildVehicleResponse(vehicle, req),
       ratings,
+      incidents,
     });
   } catch (error) {
     res.status(500).json({
