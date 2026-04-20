@@ -725,3 +725,840 @@ body {
     align-items: flex-start;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   VEHICLES LIST PAGE  (VehiclesPage.jsx)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.vlist-device {
+  width: min(100%, 720px);
+  background: var(--prototype-gray);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.vlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  min-height: 50px;
+}
+
+.vlist-header h1 {
+  font-size: 18px;
+}
+
+.vlist-filter-toggle {
+  background: rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s;
+}
+.vlist-filter-toggle:hover { background: rgba(0,0,0,0.14); }
+
+/* ── Filter panel ── */
+.vlist-filter-panel {
+  background: #fff;
+  border-bottom: 1px solid var(--prototype-border);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vlist-filter-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.vlist-filter-label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.vlist-filter-input,
+.vlist-filter-select {
+  padding: 7px 10px;
+  border: 1px solid var(--prototype-border);
+  border-radius: 5px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  background: #fafafa;
+  width: 100%;
+}
+
+.vlist-filter-row-check {
+  grid-template-columns: 1fr;
+}
+
+.vlist-filter-check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vlist-filter-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.vlist-btn-apply {
+  background: #2d7a2d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.vlist-btn-apply:hover { background: #205a20; }
+
+.vlist-btn-reset {
+  background: transparent;
+  color: #555;
+  border: 1px solid var(--prototype-border);
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.vlist-btn-reset:hover { background: #eee; }
+
+/* ── Body & city groups ── */
+.vlist-body {
+  padding: 16px 14px 32px;
+}
+
+.vlist-empty {
+  text-align: center;
+  padding: 48px 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  color: #666;
+}
+
+.vlist-city-group {
+  margin-bottom: 26px;
+}
+
+.vlist-city-heading {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 4px solid var(--prototype-green-deep);
+  padding-left: 10px;
+}
+
+.vlist-city-count {
+  margin-left: auto;
+  background: var(--prototype-green-deep);
+  color: #000;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 8px;
+}
+
+/* ── Vehicle cards grid ── */
+.vlist-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.vlist-card {
+  background: #fff;
+  border: 1px solid var(--prototype-border);
+  border-radius: 10px;
+  padding: 12px 14px 10px;
+  text-decoration: none;
+  color: var(--prototype-text);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: box-shadow 0.15s, transform 0.12s;
+}
+.vlist-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.vlist-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vlist-type-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.vlist-type-badge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--prototype-green);
+  color: #1a4a1a;
+  border-radius: 4px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vlist-card-name {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.3;
+}
+
+.vlist-card-route {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
+  /* clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vlist-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.vlist-score-badge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.vlist-ratings-count {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  color: #777;
+  margin-left: auto;
+}
+
+.vlist-qr-hint {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
+
+@media (max-width: 520px) {
+  .vlist-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+  .vlist-filter-row {
+    grid-template-columns: 1fr;
+  }
+  .vlist-filter-label {
+    font-size: 12px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   VEHICLE PROFILE PAGE – INCIDENTS SECTION  (VehicleProfilePage.jsx)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.vp-incident-pill {
+  background: #fff0f0 !important;
+  color: #b02020 !important;
+  border: 1px solid #f5c6c6 !important;
+  font-weight: 700;
+}
+
+.vp-qr-hint {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+  margin: 4px 0 0;
+}
+
+.vp-incidents-card {
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vp-incidents-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vp-incidents-header h3 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #b02020;
+}
+
+.vp-incidents-sub {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #777;
+}
+
+.vp-incidents-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 0;
+}
+
+.vp-incidents-empty-icon { font-size: 32px; }
+
+.vp-incidents-empty p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #444;
+  margin: 0;
+  text-align: center;
+}
+
+/* QR row inside incidents */
+.vp-incident-qr-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff8f8;
+  border: 1px dashed #f5c6c6;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.vp-incident-qr-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vp-incident-qr-label strong {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #b02020;
+}
+
+.vp-incident-qr-label span {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #666;
+}
+
+.vp-incident-qr-img {
+  width: 72px;
+  height: 72px;
+  border: 2px solid #f5c6c6;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* Incidents list */
+.vp-incidents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vp-incident-item {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 8px;
+  padding: 12px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 3px solid #f5c6c6;
+}
+
+.vp-incident-item-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vp-severity-tag {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vp-incident-score {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+}
+
+.vp-incident-date {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  color: #888;
+  margin-left: auto;
+}
+
+.vp-incident-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #555;
+}
+
+.vp-incident-comment {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333;
+  margin: 2px 0 0;
+  font-style: italic;
+  line-height: 1.45;
+  border-left: 3px solid #f5c6c6;
+  padding-left: 8px;
+}
+
+.vp-incident-reporter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEEDBACK PAGE – COLOR-TAGGED SECTIONS  (FeedbackPage.jsx)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.fb-shell {
+  min-height: 100vh;
+  background: #f4f4f4;
+}
+
+.fb-topbar {
+  background: var(--prototype-green);
+  padding: 18px 24px 16px;
+  border-bottom: 2px solid var(--prototype-green-deep);
+}
+
+.fb-topbar h1 {
+  margin: 0 0 4px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+}
+
+.fb-topbar-sub {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333;
+}
+
+.fb-main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 22px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Section tabs ── */
+.fb-section-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fb-section-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 2px solid var(--prototype-border);
+  border-radius: 999px;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #444;
+}
+.fb-section-tab:hover { opacity: 0.85; }
+.fb-section-tab.is-active { font-weight: 700; }
+
+.fb-tab-icon { font-size: 15px; }
+.fb-tab-label { }
+
+/* ── Section panel ── */
+.fb-section-panel {
+  background: #fff;
+  border: 2px solid var(--prototype-border);
+  border-radius: 12px;
+  padding: 20px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.fb-section-panel-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.fb-section-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.fb-section-title {
+  margin: 0 0 3px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.fb-section-prompt {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.45;
+}
+
+/* ── Stars ── */
+.fb-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.fb-star {
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  padding: 2px;
+  transition: transform 0.1s;
+  line-height: 1;
+}
+.fb-star:hover { transform: scale(1.2); }
+.fb-star.is-active { color: #f8c400; }
+
+.fb-star-val {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 10px;
+}
+
+/* ── Textarea ── */
+.fb-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  border: 2px solid var(--prototype-border);
+  border-radius: 8px;
+  resize: vertical;
+  background: #fafafa;
+  transition: border-color 0.15s;
+}
+.fb-textarea:focus { outline: none; border-color: #aaa; }
+
+/* ── Section nav ── */
+.fb-section-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.fb-nav-btn {
+  padding: 9px 22px;
+  border: none;
+  border-radius: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fb-nav-btn:hover { opacity: 0.85; }
+
+.fb-nav-prev {
+  background: #eee;
+  color: #333;
+}
+
+.fb-nav-next,
+.fb-nav-submit {
+  color: #fff;
+}
+
+/* ── Summary bar ── */
+.fb-summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fb-summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--prototype-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: box-shadow 0.12s;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}
+.fb-summary-chip:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+.fb-summary-chip-icon { font-size: 16px; }
+
+.fb-summary-chip-score {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.fb-summary-chip-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* ── Score tag (shared) ── */
+.fb-score-tag {
+  display: inline-block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* ── History section ── */
+.fb-history-section {
+  border-top: 1px solid rgba(0,0,0,0.08);
+  padding-top: 20px;
+}
+
+.fb-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.fb-history-head h3 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.fb-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Feedback card ── */
+.fb-history-card {
+  background: #fff;
+  border: 1px solid var(--prototype-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fb-history-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fb-history-name {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
+
+.fb-history-date {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #888;
+}
+
+.fb-history-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fb-history-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fb-section-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fb-section-label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 90px;
+}
+
+.fb-history-comment {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+  border-left: 3px solid #ddd;
+  padding-left: 10px;
+}
+
+/* ── Success state ── */
+.fb-success-panel {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.fb-success-icon { font-size: 52px; }
+
+.fb-success-panel h2 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.fb-success-panel p {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.fb-success-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.fb-success-score-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--prototype-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .fb-section-tabs { gap: 6px; }
+  .fb-section-tab  { padding: 6px 10px; font-size: 12px; }
+  .fb-tab-icon     { font-size: 14px; }
+  .fb-star         { font-size: 26px; }
+  .fb-section-panel { padding: 16px 12px; }
+  .fb-summary-bar   { gap: 6px; }
+  .fb-summary-chip  { padding: 5px 9px; font-size: 12px; }
+
+  .vp-incident-qr-row { flex-direction: column; text-align: center; }
+  .vp-incident-qr-img { width: 90px; height: 90px; }
+}
